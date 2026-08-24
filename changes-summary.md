@@ -1,58 +1,43 @@
-# Change Summary — illustration set + admin panel — 24 Aug 2026
+# Change Summary — motion, type, 3D hero, photo uploads — 24 Aug 2026
 
 ## Files Created
-
-### Admin panel (not linked from the public site)
-- `zeronine/admin.html` — password-gated admin: dashboard, products, inventory, activity log, publish
-- `zeronine/assets/css/admin.css` — admin styling, deliberately distinct from the shop
-- `zeronine/assets/js/admin.js` — admin logic; never loaded by a public page
-- `zeronine/robots.txt` — disallows `/admin.html`
-
-### Illustration set
-- `zeronine/tools/make-images.js` — generator that writes every image below from shared primitives
-- `zeronine/assets/img/cat-organic.svg`, `cat-gluten-free.svg`, `cat-no-sugar.svg`, `cat-supplements.svg`, `cat-natural.svg`, `cat-vegan.svg` — department tile images
-- `zeronine/assets/img/recipe-muffins.svg`, `recipe-smoothie.svg`, `recipe-toast.svg`, `recipe-baking.svg`, `recipe-tahini.svg`, `recipe-oats.svg` — recipe images
-- `zeronine/assets/img/banner-organic.svg`, `banner-gluten-free.svg`, `banner-offers.svg` — wide promo banners
-- `zeronine/assets/img/about-warehouse.svg` — about-page editorial image
+- `zeronine/assets/js/motion.js` — scroll animation engine: reveals, stagger, parallax, count-ups, progress bar, sticky header
+- `zeronine/assets/js/bottle3d.js` — the rotating product in the hero; canvas 2D, no 3D library
 
 ## Files Modified
-- `zeronine/index.html` — added a two-up promo banner strip and an offers banner; catalogue link text is now set from the product count instead of being hardcoded
-- `zeronine/about.html` — added the warehouse figure above the story
-- `zeronine/assets/css/main.css` — category tiles rebuilt around an image; new `.promo` and `.figure` styles; recipe art now holds an image
-- `zeronine/assets/js/products.js` — added 12 products across Byodo, Roo Bar and Biagi, which were listed as brands but had no stock; categories now carry an `image`
-- `zeronine/assets/js/content.js` — each recipe now carries an `image`
-- `zeronine/assets/js/store.js` — catalogue now reads admin edits from local storage before falling back to the bundled file; added `ZN.catalogue` (all/save/reset/isEdited) for the admin panel
-- `zeronine/assets/js/home.js` — category tiles and recipe cards use the new images; catalogue link text set from the live count
-- `zeronine/assets/js/pages.js` — recipe articles use the new images
-- `zeronine/assets/js/app.js` — search placeholder no longer hardcodes a product count
-- `zeronine/README.md` — documented the admin panel, the password caveat, the publish workflow and the image generator
-- `setup.sh` — routes the new files (admin, images, `tools/`); required-file list grew from 20 to 39; asset-reference check now covers all 8 pages instead of just `index.html`; JS syntax check includes `tools/`
+- `zeronine/assets/css/main.css` — new type stack; base size 16→17px with looser leading; full Motion section replacing the old single reveal rule; hero showcase styles; brand marquee; scroll progress bar; sticky-header state; hover micro-interactions on cards, tiles, promos and recipes; dead `.shelf` rules removed
+- `zeronine/assets/css/admin.css` — matching type stack; base size 15→16px; drop-zone and upload styles; light panel/stat entrance animations
+- `zeronine/index.html` — hero shelf replaced by the rotating showcase (canvas, product info, dots, drag hint); progress bar; `data-animate` / `data-stagger` throughout; brand strip wrapped in a marquee; stats switched to count-up
+- `zeronine/shop.html`, `about.html`, `contact.html`, `recipes.html`, `404.html`, `product.html` — new font link, `motion.js` script tag, entrance animations on page heads and content blocks
+- `zeronine/admin.html` — new font link; drag-and-drop photo upload in the product editor, with the pasted-address field kept behind a disclosure; note on the Publish screen about where uploads go
+- `zeronine/assets/js/app.js` — reveals delegated to `motion.js`; progress bar injected on every page
+- `zeronine/assets/js/home.js` — hero showcase wiring (featured products, cycling, dots, drag); brand list duplicated for the marquee; stats set up to count
+- `zeronine/assets/js/shop.js` — results grid staggers as it repaints (first screenful only)
+- `zeronine/assets/js/pages.js`, `product.js` — reveal calls point at `motion.js`; recipe articles animate individually
+- `zeronine/assets/js/admin.js` — photo upload pipeline: validation, canvas resize, progress, thumbnail, remove, reopen; `image` validation now accepts data URLs
+- `zeronine/README.md` — documented the type stack, the motion attributes, how the rotating product works, and the upload caveat
+- `setup.sh` — `motion.js` and `bottle3d.js` added to the required list (41 files, up from 39)
 
 ## Notes
 
-**Admin access**
-- URL: `admin.html` — e.g. `https://zeroninetrading.github.io/website/admin.html`
-- Password: `zeronine2026`
-- Nothing on the public site links to it. Verified by a test that greps every public HTML and JS file for admin references.
+**Type.** Outfit for headings, Figtree for body, JetBrains Mono for prices and codes. Figtree was chosen for the large x-height and open apertures — that plus the 16→17px bump is most of the readability gain. All three come from one `<link>` per page; the fallbacks are in the `--display` / `--body` / `--mono` variables.
 
-**The password is a demo gate, not security.** It is checked in the browser, so anyone who reads the page source can get past it. It keeps the panel out of casual view during a client demo and nothing more. Say so if the client asks. The production version must authenticate on the server before returning or writing any product data. To change it, edit `PASSWORD_DIGEST` in `assets/js/admin.js`.
+**Motion is attribute-driven.** `data-animate="fade-up|fade-down|fade|zoom|slide-left|slide-right|rise|blur"`, `data-animate-delay`, `data-stagger` on a parent, `data-parallax`, `data-count-to`. One IntersectionObserver covers the page and unobserves each element once it has appeared.
 
-`robots.txt` is included but on a GitHub Pages project site it is served from `/website/robots.txt`, which crawlers ignore — they only read the domain root. The `<meta name="robots" content="noindex">` on the page does apply.
+**`prefers-reduced-motion` is honoured throughout** — elements appear in place, the marquee stops looping, the progress bar is hidden, and the hero product stops turning on its own (it can still be dragged).
 
-**How admin edits reach the shop**
-- Edits are held in the browser's local storage under `zn.catalogue.v1`, and `ZN.load()` reads that before the bundled file. Change a price in the admin, reload the shop on the same machine, and the new price is there. This is the thing to demo.
-- Nobody else sees those edits. To publish: Publish & data → Download products.js → replace `assets/js/products.js` → run `./setup.sh`.
-- "Discard my changes" clears the override and returns to the committed catalogue.
+**The rotating product.** No WebGL, no library, nothing to load. A bottle is a surface of revolution, so its outline doesn't change as it turns — only the label and the highlight do. The silhouette is drawn once and the label is mapped around it as a cylinder (`x = R·sin θ`, width scaled by `cos θ`, Lambert shading over the same angle). Three shapes with their own proportions, four featured products on a 7-second cycle, drag or arrow keys to turn, and it only animates while on screen.
 
-**Catalogue grew from 70 to 82 products.** Byodo, Roo Bar and Biagi were listed as brands with zero products, so their brand pages and filters came up empty. All counts shown on the site are now derived from the data rather than written into the copy.
-
-**Images are template artwork**, generated rather than photographed — the client has no consistent photography. To change them, edit `tools/make-images.js` and run `node tools/make-images.js`. Replacing any one with a photograph is a one-line change wherever the filename appears.
+**Photo uploads work, but the file never leaves the browser.** It's validated, resized to 900px on the long edge, and kept as a data URL, so an uploaded photo genuinely shows on the shop. It will not survive the export, so photos can't be published the way price and stock changes can — worth saying out loud when demoing. When the backend lands, only `storeFile()` in `admin.js` changes: it POSTs the blob and keeps the returned address. The drop zone, validation, resizing, progress bar and thumbnail all stay.
 
 **Testing done**
-- New admin suite: 55 assertions covering the password gate (wrong and right), dashboard figures, table search/filter/sort, stock steppers, the editor's validation rules (required fields, old price must exceed price, malformed photo URL, duplicate product code), add/edit/delete, the activity log, inventory tables, restock-all, export, reset and sign-out. It also evaluates the exported `products.js` in a clean sandbox to confirm it parses and round-trips the full catalogue.
-- Existing 58-assertion public-site suite re-run and passing after the catalogue and image changes.
-- Both suites re-run against the delivered copy in the outputs folder, not just the working copy.
-- Every illustration rasterised and inspected; four defects found and fixed (muffins reading as mushrooms, bowl contents painted over by the rim, dietary badges cropped at the canvas edge, kitchen scale reading as a featureless slab).
-- `setup.sh` re-tested by flattening all 42 files into one folder and confirming it rebuilt the tree correctly.
+- Public suite grown to 66 assertions; admin suite to 73. Both passing, and both re-run against the delivered copy.
+- New coverage: showcase renders and names a real product, the bottle actually draws label slices and shading gradients, the marquee duplicates its list, stats count up to the true total, progress bar present.
+- New upload coverage: non-image rejected, oversize rejected, nothing attached after a rejection, progress shown, photo attached and resized, dropzone hides and returns, thumbnail rendered, photo persists through save, packshot switches from illustration to `<img>`, remove clears it, pasted https address still accepted.
+- The bottle was rendered to PNG at six rotations and three shapes and inspected twice — first pass read as a jug with a stretched tin, so the profiles were reworked to give each shape its own height and girth.
+- `setup.sh` re-rehearsed against a flattened folder of all 44 files.
 
-**One real bug caught during testing:** the editor read its fields via form named-property access (`form.name`, `form.id`). Those resolve to the form element's own attributes rather than the controls, which would have broken saving in every browser. All field access is now by element id.
+**Three real bugs caught while testing**
+1. `bottle3d.js` threw on any browser without a 2D canvas context. It now returns `null` from `create()` and the hero falls back to the flat illustration.
+2. `shade()` returned `rgb(...)` but its result was chained back into itself, which couldn't be parsed — the cap colour crashed the draw. It returns hex now.
+3. The count-up never fired: the numbers sit inside a block that carries the reveal, so they were never observed on their own. Counters now get their own pass, which also covers numbers added to the page after the first scan.

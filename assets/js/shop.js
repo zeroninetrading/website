@@ -4,7 +4,7 @@
    All filter state lives in the URL, so any view can be linked,
    bookmarked or sent to a customer.
 ------------------------------------------------------------------- */
-(function () {
+(function (global) {
   'use strict';
 
   var doc = document;
@@ -194,7 +194,14 @@
         '<button class="btn btn--primary" data-clear-filters>Clear all filters</button></div>';
     } else {
       results.className = 'grid-products';
-      results.innerHTML = slice.map(ZNUI.card).join('');
+      results.setAttribute('data-stagger', '40');
+      results.innerHTML = slice.map(function (p, i) {
+        // Only animate the first screenful; beyond that it just delays reading.
+        return i < 12
+          ? '<div data-animate="fade-up">' + ZNUI.card(p) + '</div>'
+          : ZNUI.card(p);
+      }).join('');
+      if (global.ZNMotion) global.ZNMotion.reveal(results);
     }
 
     doc.querySelector('[data-count]').innerHTML = list.length
@@ -279,4 +286,4 @@
     syncSidebar();
     render();
   });
-})();
+})(window);

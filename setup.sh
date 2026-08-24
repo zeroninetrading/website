@@ -151,7 +151,7 @@ REQUIRED=(
   "assets/js/products.js" "assets/js/content.js" "assets/js/store.js"
   "assets/js/packshot.js" "assets/js/app.js" "assets/js/home.js"
   "assets/js/shop.js" "assets/js/product.js" "assets/js/pages.js"
-  "assets/js/admin.js"
+  "assets/js/motion.js" "assets/js/bottle3d.js" "assets/js/admin.js"
 )
 
 missing=()

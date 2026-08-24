@@ -62,6 +62,8 @@ assets/js/
   shop.js           Catalogue filtering and sorting
   product.js        Product detail page
   pages.js          About, contact, recipes, 404
+  motion.js         Scroll reveals, parallax, count-ups, progress bar
+  bottle3d.js       The rotating product in the hero
   admin.js          Admin panel — never loaded by a public page
 ```
 
@@ -122,6 +124,57 @@ on the site reads from there, including the footer and the cart totals.
 
 ---
 
+## Type
+
+- **Outfit** for headings — geometric, open, and holds up at large sizes.
+- **Figtree** for body text — a tall x-height and wide apertures, which is what
+  makes it easy to read at 17px on a phone.
+- **JetBrains Mono** for prices, codes and labels, where digits need to line up.
+
+All three are Google Fonts, loaded from one `<link>` in each page's `<head>`,
+with system fallbacks in the `--display` / `--body` / `--mono` variables in
+`main.css`. To self-host them, drop the files in `assets/` and swap that link.
+
+---
+
+## Motion
+
+`assets/js/motion.js` drives everything that moves on scroll. Adding an
+animation is an attribute, not more JavaScript:
+
+```html
+<div data-animate="fade-up">…</div>
+<div data-animate="zoom" data-animate-delay="200">…</div>
+<div class="grid" data-stagger="80">…</div>   <!-- children enter in sequence -->
+<div data-parallax="0.12">…</div>              <!-- drifts against the scroll -->
+<span data-count-to="82">0</span>              <!-- counts up when it's seen -->
+```
+
+Available entrances: `fade-up`, `fade-down`, `fade`, `zoom`, `slide-left`,
+`slide-right`, `rise`, `blur` — defined in the Motion section of `main.css`.
+
+One IntersectionObserver handles the whole page, and each element is unobserved
+once it has appeared. **Everything checks `prefers-reduced-motion` first**: with
+that set, elements are simply shown in place, the marquee stops looping, the
+progress bar is hidden and the hero product stops turning on its own.
+
+### The rotating product
+
+`assets/js/bottle3d.js`, on the homepage. No WebGL and no 3D library.
+
+A bottle is a surface of revolution, so its outline is identical from every
+angle — the only things that actually change as it turns are the label and the
+highlight. So the silhouette is drawn once and the label is mapped around it as
+a cylinder: each column of a flat label texture is placed at `x = R·sin(θ)` and
+squeezed by `cos(θ)`, with a Lambert term over the same angle for shading.
+
+It supports three shapes (`bottle`, `jar`, `tin`), each with its own
+proportions, and the hero cycles through four featured products. You can drag it
+or use the arrow keys. It only animates while it's on screen, and it falls back
+to the flat illustration if canvas isn't available.
+
+---
+
 ## The admin panel
 
 `admin.html`. Nothing on the public site links to it — no nav entry, no footer
@@ -145,6 +198,9 @@ link, no mention in any public file. You reach it by typing the address.
 - **Products** — searchable, filterable, sortable table of everything. Edit any
   field, add a product, delete one. Every row has a **View** link that opens
   that product on the shop.
+- **Photo upload** — drag a photo onto the editor, or choose a file. It's checked
+  for type and size, resized to 900px on the long edge, and attached to the
+  product. See the caveat below.
 - **Inventory** — sold-out and low-stock lists with stock steppers you can adjust
   in place, plus stock value broken down by brand.
 - **Activity** — a log of every change made in the panel, newest first.
@@ -164,6 +220,20 @@ To publish for real:
 
 **Discard my changes** on the same screen throws away everything held in the
 browser and goes back to the committed catalogue.
+
+### Photo uploads
+
+The upload box works: drop a file in and the photo really does appear on that
+product across the shop. But with no backend, the file never leaves the browser
+— it's resized on a canvas and kept as a data URL in local storage.
+
+That means **uploaded photos don't survive the export**, so they can't be
+published the way price and stock changes can. Say so if you're demoing it.
+
+When the backend lands, one function changes: `storeFile()` in `admin.js` POSTs
+the blob to storage and keeps the address it returns instead of the data URL.
+Everything around it — the drop zone, the validation, the resizing, the progress
+bar, the thumbnail — stays exactly as it is.
 
 ---
 

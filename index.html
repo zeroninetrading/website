@@ -11,11 +11,12 @@
 <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/main.css">
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to content</a>
+<div class="progress" data-progress aria-hidden="true"></div>
 <div id="zn-header"></div>
 
 <main id="main">
@@ -38,13 +39,27 @@
         </div>
       </div>
 
-      <div class="shelf" data-shelf></div>
+      <div class="showcase" data-showcase>
+        <div class="showcase__stage">
+          <div class="showcase__glow float-slower" aria-hidden="true"></div>
+          <canvas class="showcase__canvas" data-bottle tabindex="0"
+                  role="img" aria-label="A rotating view of a featured product. Drag, or use the arrow keys, to turn it."></canvas>
+        </div>
+        <div class="showcase__info" data-showcase-info>
+          <div class="showcase__brand" data-showcase-brand></div>
+          <div class="showcase__name" data-showcase-name></div>
+          <div class="showcase__price" data-showcase-price></div>
+          <a class="btn btn--lime btn--sm" data-showcase-link href="shop.html">View product</a>
+        </div>
+        <div class="showcase__dots" data-showcase-dots role="tablist" aria-label="Featured products"></div>
+        <p class="showcase__hint">Drag to spin</p>
+      </div>
     </div>
   </section>
 
   <!-- ============================================ best sellers -->
   <section class="section wrap">
-    <div class="section__head reveal">
+    <div class="section__head" data-animate="fade-up">
       <div>
         <div class="eyebrow">What Cyprus keeps re-ordering</div>
         <h2>Best sellers</h2>
@@ -54,12 +69,12 @@
         <button class="btn-icon" data-rail-next="best" aria-label="Scroll right"></button>
       </div>
     </div>
-    <div class="rail reveal" data-rail="best"></div>
+    <div class="rail" data-rail="best" data-animate="fade-up" data-stagger="60"></div>
   </section>
 
   <!-- ============================================ departments -->
   <section class="section--tight wrap section">
-    <div class="section__head reveal">
+    <div class="section__head" data-animate="fade-up">
       <div>
         <div class="eyebrow">Six aisles</div>
         <h2>Shop by department</h2>
@@ -67,12 +82,12 @@
       </div>
       <a class="btn btn--ghost" href="shop.html" data-total-link>See the whole catalogue</a>
     </div>
-    <div class="grid-cats reveal" data-cats></div>
+    <div class="grid-cats" data-cats data-stagger="80"></div>
   </section>
 
   <!-- ============================================ promos -->
   <section class="section--tight wrap section">
-    <div class="promos reveal">
+    <div class="promos" data-stagger="140">
       <a class="promo promo--dark" href="shop.html?diet=organic">
         <img class="promo__img" src="assets/img/banner-organic.svg" alt="" loading="lazy" width="1200" height="500">
         <div class="promo__body">
@@ -96,7 +111,7 @@
 
   <!-- ============================================ heritage -->
   <section class="section wrap">
-    <div class="heritage reveal">
+    <div class="heritage" data-animate="rise">
       <div class="heritage__numeral" aria-hidden="true">09</div>
       <div class="heritage__inner">
         <div class="eyebrow" style="color:#A9BFAE">The name is the year</div>
@@ -104,8 +119,8 @@
         <p>We began as a wholesaler supplying pharmacies and health shops around Nicosia with products that were hard to find on the island — gluten-free bread that a coeliac would actually eat, sweeteners a diabetic could bake with. The shop came later, because customers kept asking to buy direct.</p>
         <p>Today we hold the Cyprus distribution for several of the brands on this site, which is why the prices here match the shelf and the stock is real.</p>
         <div class="heritage__stats">
-          <div class="stat"><div class="stat__num" data-stat-products>70</div><div class="stat__label">products in stock</div></div>
-          <div class="stat"><div class="stat__num" data-stat-brands>10</div><div class="stat__label">brands distributed</div></div>
+          <div class="stat"><div class="stat__num" data-stat-products>0</div><div class="stat__label">products in stock</div></div>
+          <div class="stat"><div class="stat__num" data-stat-brands>0</div><div class="stat__label">brands distributed</div></div>
           <div class="stat"><div class="stat__num">14:00</div><div class="stat__label">order by, for next-day delivery</div></div>
           <div class="stat"><div class="stat__num">50 €</div><div class="stat__label">basket for free delivery</div></div>
         </div>
@@ -115,14 +130,14 @@
 
   <!-- ============================================ offers -->
   <section class="section--tight wrap section" data-offers-section>
-    <div class="section__head reveal">
+    <div class="section__head" data-animate="fade-up">
       <div>
         <div class="eyebrow">Reduced this month</div>
         <h2>Current offers</h2>
       </div>
       <a class="btn btn--ghost" href="shop.html?sale=1">All offers</a>
     </div>
-    <a class="promo promo--light reveal" href="shop.html?sale=1" style="margin-bottom:20px">
+    <a class="promo promo--light" data-animate="fade-up" href="shop.html?sale=1" style="margin-bottom:20px">
       <img class="promo__img" src="assets/img/banner-offers.svg" alt="" loading="lazy" width="1200" height="500">
       <div class="promo__body">
         <div class="promo__eyebrow">This month</div>
@@ -131,36 +146,36 @@
         <span class="btn btn--primary btn--sm">See all offers</span>
       </div>
     </a>
-    <div class="grid-products reveal" data-offers></div>
+    <div class="grid-products" data-offers data-stagger="70"></div>
   </section>
 
   <!-- ============================================ brands -->
   <section class="section--tight wrap section">
-    <div class="section__head reveal">
+    <div class="section__head" data-animate="fade-up">
       <div>
         <div class="eyebrow">Who we import</div>
         <h2>The brands on our shelves</h2>
         <p class="section__lead">Ten producers across Europe and beyond. Each one was chosen because nothing comparable was reaching Cyprus.</p>
       </div>
     </div>
-    <div class="brand-strip reveal" data-brands></div>
+    <div class="marquee" data-animate="fade"><div class="marquee__track brand-strip" data-brands></div></div>
   </section>
 
   <!-- ============================================ recipes -->
   <section class="section wrap">
-    <div class="section__head reveal">
+    <div class="section__head" data-animate="fade-up">
       <div>
         <div class="eyebrow">From the kitchen</div>
         <h2>Things worth cooking</h2>
       </div>
       <a class="btn btn--ghost" href="recipes.html">All recipes</a>
     </div>
-    <div class="grid-recipes reveal" data-recipes></div>
+    <div class="grid-recipes" data-recipes data-stagger="110"></div>
   </section>
 
   <!-- ============================================ newsletter -->
   <section class="section--tight wrap section">
-    <div class="newsletter reveal">
+    <div class="newsletter" data-animate="zoom">
       <div>
         <div class="eyebrow">One email a month</div>
         <h2>New arrivals and what's about to run out</h2>
@@ -185,6 +200,8 @@
 <script src="assets/js/content.js"></script>
 <script src="assets/js/store.js"></script>
 <script src="assets/js/packshot.js"></script>
+<script src="assets/js/motion.js"></script>
+<script src="assets/js/bottle3d.js"></script>
 <script src="assets/js/app.js"></script>
 <script src="assets/js/home.js"></script>
 </body>

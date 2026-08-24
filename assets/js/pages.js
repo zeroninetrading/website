@@ -88,7 +88,7 @@
             return '<li>' + esc(s) + '</li>';
           }).join('');
 
-          return '<article id="' + esc(r.id) + '" class="infocard" style="margin-bottom:22px;padding:0;overflow:hidden">' +
+          return '<article id="' + esc(r.id) + '" class="infocard" data-animate="fade-up" style="margin-bottom:22px;padding:0;overflow:hidden">' +
             '<div style="display:grid;grid-template-columns:minmax(0,220px) minmax(0,1fr);gap:0" class="recipe-row">' +
               '<div class="recipe__art" style="aspect-ratio:auto;min-height:100%">' +
                 '<img src="' + esc(r.image) + '" alt="" loading="lazy" width="600" height="400">' +
@@ -123,7 +123,7 @@
         }
       }
 
-      ZNUI.reveal();
+      if (window.ZNMotion) window.ZNMotion.init();
     });
   }
 })();

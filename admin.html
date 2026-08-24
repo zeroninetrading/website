@@ -9,7 +9,7 @@
 <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/admin.css">
 </head>
 <body>
@@ -222,6 +222,12 @@
             replace <code>assets/js/products.js</code> in the repository, then run
             <code>./setup.sh</code> to commit and push.
           </p>
+          <p style="color:var(--a-muted)">
+            <strong>Photos you upload</strong> are held in this browser rather than sent
+            anywhere, so they don't survive the export. Once the backend is in place the
+            same upload box will send the file to storage and save the address it returns,
+            and photos will publish with everything else.
+          </p>
           <div class="toolbar" style="margin-top:14px">
             <button class="b b-primary" data-export-js>Download products.js</button>
             <button class="b b-ghost" data-export-json>Download JSON</button>
@@ -355,10 +361,29 @@
       </div>
 
       <div class="field field--full">
-        <label for="f-image">Photo URL</label>
-        <input id="f-image" name="image" type="url" placeholder="https://… — leave empty to use the illustration">
-        <span class="hint">A photo here replaces the generated packshot for this product only.</span>
+        <label>Product photo</label>
+        <span class="hint">Replaces the generated illustration for this product. Leave empty to keep the illustration.</span>
+
+        <div class="dropzone" data-dropzone tabindex="0" role="button"
+             aria-label="Upload a product photo. Choose a file or drop one here.">
+          <span class="dropzone__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 16V4M8 8l4-4 4 4"/><path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2"/>
+            </svg>
+          </span>
+          <span class="dropzone__title">Drop a photo here, or choose a file</span>
+          <span class="dropzone__hint">JPG, PNG or WebP · up to 5 MB · resized to 900 px on the long edge</span>
+          <input type="file" accept="image/*" data-photo-input>
+        </div>
+
+        <div data-upload hidden></div>
         <span class="err" data-err="image"></span>
+
+        <details style="margin-top:6px">
+          <summary style="cursor:pointer;font-size:.8rem;color:var(--a-muted)">Or paste a photo address</summary>
+          <input id="f-image" name="image" type="text" style="margin-top:8px"
+                 placeholder="https://… or leave empty">
+        </details>
       </div>
 
       <div class="field field--full">

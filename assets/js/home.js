@@ -12,17 +12,106 @@
   ZN.load().then(function (products) {
     var live = products.filter(function (p) { return p.stock > 0; });
 
-    /* ---------- hero shelf ------------------------------------- */
-    var shelfPicks = live.filter(function (p) { return p.reviews >= 5; }).slice(0, 4);
-    while (shelfPicks.length < 4) shelfPicks.push(live[shelfPicks.length]);
+    /* ---------- hero showcase (the rotating product) ------------ */
+    // Only shapes that are surfaces of revolution can be spun convincingly.
+    var spinnable = live.filter(function (p) {
+      return ZNBottle.shapes.indexOf(p.pack) > -1;
+    }).sort(function (a, b) {
+      return (b.reviews * b.rating) - (a.reviews * a.rating);
+    });
 
-    doc.querySelector('[data-shelf]').innerHTML = shelfPicks.map(function (p) {
-      return '<a class="shelf__tile" href="product.html?id=' + encodeURIComponent(p.id) + '">' +
-        '<div class="packshot">' + ZNArt.packshot(p) + '</div>' +
-        '<div class="shelf__name">' + esc(p.name) + '</div>' +
-        '<div class="shelf__price">' + esc(p.size) + ' · ' + ZN.money(p.price) + '</div>' +
-      '</a>';
-    }).join('');
+    var featured = [];
+    var seenBrands = {};
+    spinnable.forEach(function (p) {                 // one per brand, for variety
+      if (featured.length >= 4 || seenBrands[p.brand]) return;
+      seenBrands[p.brand] = true;
+      featured.push(p);
+    });
+    while (featured.length < 4 && spinnable.length > featured.length) {
+      featured.push(spinnable[featured.length]);
+    }
+
+    var canvas = doc.querySelector('[data-bottle]');
+    var bottle = null;
+    var current = 0;
+    var cycleTimer = null;
+
+    function showFeatured(i, immediate) {
+      current = (i + featured.length) % featured.length;
+      var p = featured[current];
+      var info = doc.querySelector('[data-showcase-info]');
+
+      function apply() {
+        if (!bottle) {
+          // No canvas: show the illustration instead, still cycling products.
+          var stage = doc.querySelector('.showcase__stage');
+          if (stage) {
+            stage.innerHTML = '<div class="showcase__glow" aria-hidden="true"></div>' +
+              '<div class="showcase__fallback">' + ZNArt.packshot(p) + '</div>';
+          }
+          paintInfo();
+          return;
+        }
+        bottle.setProduct({
+          brand: p.brand,
+          name: p.name,
+          size: p.size,
+          pack: p.pack,
+          color: ZNArt.ink(ZNUI.brandColor(p.brand))
+        });
+        paintInfo();
+      }
+
+      function paintInfo() {
+        doc.querySelector('[data-showcase-brand]').textContent = p.brand;
+        doc.querySelector('[data-showcase-name]').textContent = p.name;
+        doc.querySelector('[data-showcase-price]').textContent = ZN.money(p.price) + ' · ' + p.size;
+        doc.querySelector('[data-showcase-link]').href = 'product.html?id=' + encodeURIComponent(p.id);
+        info.classList.remove('is-swapping');
+
+        Array.prototype.forEach.call(doc.querySelectorAll('[data-showcase-dots] button'), function (b, n) {
+          b.setAttribute('aria-current', n === current ? 'true' : 'false');
+        });
+      }
+
+      if (immediate || ZNMotion.reduced) { apply(); return; }
+      info.classList.add('is-swapping');
+      setTimeout(apply, 300);
+    }
+
+    function startCycle() {
+      clearInterval(cycleTimer);
+      cycleTimer = setInterval(function () { showFeatured(current + 1); }, 7000);
+    }
+
+    if (canvas && featured.length) {
+      bottle = ZNBottle.create(canvas);
+      if (!bottle) {
+        canvas.remove();
+        doc.querySelector('.showcase__hint').hidden = true;
+      }
+
+      doc.querySelector('[data-showcase-dots]').innerHTML = featured.map(function (p, i) {
+        return '<button type="button" role="tab" aria-current="' + (i === 0) + '" ' +
+          'data-dot="' + i + '" aria-label="Show ' + ZNUI.esc(p.name) + '"></button>';
+      }).join('');
+
+      doc.querySelector('[data-showcase-dots]').addEventListener('click', function (e) {
+        var b = e.target.closest('[data-dot]');
+        if (!b) return;
+        showFeatured(parseInt(b.getAttribute('data-dot'), 10));
+        startCycle();
+      });
+
+      // Stop cycling while someone is turning it by hand.
+      canvas.addEventListener('mousedown', function () { clearInterval(cycleTimer); });
+      canvas.addEventListener('touchstart', function () { clearInterval(cycleTimer); }, { passive: true });
+      canvas.addEventListener('mouseup', startCycle);
+      canvas.addEventListener('touchend', startCycle);
+
+      showFeatured(0, true);
+      startCycle();
+    }
 
     /* ---------- diet finder (the signature) --------------------- */
     var chosen = [];
@@ -88,8 +177,8 @@
       doc.querySelector('[data-offers-section]').remove();
     }
 
-    /* ---------- brands ------------------------------------------ */
-    doc.querySelector('[data-brands]').innerHTML = Object.keys(ZN_BRANDS).map(function (name) {
+    /* ---------- brands (marquee, so the list is duplicated) ------ */
+    var brandChips = Object.keys(ZN_BRANDS).map(function (name) {
       var b = ZN_BRANDS[name];
       var n = products.filter(function (p) { return p.brand === name; }).length;
       return '<a class="brand-chip" href="shop.html?brand=' + encodeURIComponent(name) + '">' +
@@ -98,12 +187,13 @@
         '<span class="brand-chip__origin">' + esc(b.origin) + ' · ' + n + ' items</span>' +
       '</a>';
     }).join('');
+    doc.querySelector('[data-brands]').innerHTML = brandChips + brandChips;
 
     /* ---------- stats ------------------------------------------- */
-    doc.querySelector('[data-stat-products]').textContent = products.length;
+    doc.querySelector('[data-stat-products]').setAttribute('data-count-to', products.length);
     var totalLink = doc.querySelector('[data-total-link]');
     if (totalLink) totalLink.textContent = 'See all ' + products.length + ' products';
-    doc.querySelector('[data-stat-brands]').textContent = Object.keys(ZN_BRANDS).length;
+    doc.querySelector('[data-stat-brands]').setAttribute('data-count-to', Object.keys(ZN_BRANDS).length);
 
     /* ---------- recipes ----------------------------------------- */
     doc.querySelector('[data-recipes]').innerHTML = ZN_RECIPES.slice(0, 3).map(function (r) {
@@ -130,7 +220,7 @@
     doc.querySelector('[data-rail-prev="best"]').innerHTML = ZNUI.icons.arrowL;
     doc.querySelector('[data-rail-next="best"]').innerHTML = ZNUI.icons.arrowR;
 
-    ZNUI.reveal();
+    ZNMotion.init();
   });
 
   /* ---------- newsletter ---------------------------------------- */

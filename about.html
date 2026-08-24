@@ -8,7 +8,7 @@
 <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/main.css">
 </head>
 <body data-page="about">
@@ -17,7 +17,7 @@
 
 <main id="main">
   <div class="pagehead">
-    <div class="wrap">
+    <div class="wrap" data-animate="fade-up">
       <nav class="crumbs" aria-label="Breadcrumb"><a href="index.html">Home</a><span>/</span><span>About</span></nav>
       <h1>Seventeen years of reading labels</h1>
       <p class="section__lead">We import specialist food into Cyprus, hold it in Latsia, and sell it to shops, pharmacies and — since the e-shop opened — directly to you.</p>
@@ -25,8 +25,8 @@
   </div>
 
   <div class="wrap section split">
-    <div class="prose">
-      <figure class="figure">
+    <div class="prose" data-animate="slide-left">
+      <figure class="figure" data-animate="zoom">
         <img src="assets/img/about-warehouse.svg" alt="Illustration of stock on the warehouse shelves in Latsia" width="900" height="560">
         <figcaption>The Latsia warehouse — the same stock that reaches pharmacies and health shops across the island.</figcaption>
       </figure>
@@ -47,7 +47,7 @@
       <p>If you run a shop, pharmacy, bakery or restaurant, we supply on trade terms with a delivery route across the island. Email the office for a current price list and minimum order.</p>
     </div>
 
-    <div>
+    <div data-animate="slide-right">
       <div class="infocard">
         <h3>The short version</h3>
         <div class="infoline"><b>Founded</b><span>2009, in Nicosia</span></div>
@@ -73,14 +73,14 @@
   </div>
 
   <div class="wrap section--tight section">
-    <div class="section__head">
+    <div class="section__head" data-animate="fade-up">
       <div>
         <div class="eyebrow">Who we import</div>
         <h2>The brands we carry</h2>
       </div>
       <a class="btn btn--ghost" href="shop.html">Browse everything</a>
     </div>
-    <div class="brand-strip" data-brands></div>
+    <div class="brand-strip" data-brands data-stagger="60"></div>
   </div>
 </main>
 
@@ -90,6 +90,7 @@
 <script src="assets/js/content.js"></script>
 <script src="assets/js/store.js"></script>
 <script src="assets/js/packshot.js"></script>
+<script src="assets/js/motion.js"></script>
 <script src="assets/js/app.js"></script>
 <script src="assets/js/pages.js"></script>
 </body>

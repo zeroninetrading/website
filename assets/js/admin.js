@@ -353,6 +353,197 @@
         '<p>Add, edit or restock a product and it will appear here.</p></div>';
   }
 
+  /* ---------- photo upload ---------------------------------------
+     There's no backend yet, so the file never leaves the browser: it's
+     resized on a canvas and kept as a data URL in the product's `image`
+     field. That means an uploaded photo really does appear on the shop,
+     which is the point of the demo. When the backend lands, only
+     storeFile() changes — it POSTs the blob and keeps the returned URL.
+  ---------------------------------------------------------------- */
+  var MAX_BYTES = 5 * 1024 * 1024;
+  var MAX_EDGE = 900;
+
+  function prettySize(bytes) {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return Math.round(bytes / 1024) + ' KB';
+    return (bytes / 1024 / 1024).toFixed(1) + ' MB';
+  }
+
+  /** Draw the file onto a canvas at a sane size and return a data URL. */
+  function resizeImage(file) {
+    return new Promise(function (resolve, reject) {
+      var url = URL.createObjectURL(file);
+      var img = new Image();
+
+      img.onload = function () {
+        URL.revokeObjectURL(url);
+        var w = img.naturalWidth || img.width;
+        var h = img.naturalHeight || img.height;
+        if (!w || !h) { reject(new Error("that file doesn't look like an image")); return; }
+
+        var scale = Math.min(1, MAX_EDGE / Math.max(w, h));
+        var cw = Math.max(1, Math.round(w * scale));
+        var ch = Math.max(1, Math.round(h * scale));
+
+        var c = doc.createElement('canvas');
+        c.width = cw;
+        c.height = ch;
+        var g = c.getContext('2d');
+        g.fillStyle = '#FFFFFF';
+        g.fillRect(0, 0, cw, ch);
+        g.drawImage(img, 0, 0, cw, ch);
+
+        var hasAlpha = /png|webp/i.test(file.type);
+        resolve({
+          dataUrl: c.toDataURL(hasAlpha ? 'image/png' : 'image/jpeg', 0.85),
+          width: cw, height: ch
+        });
+      };
+      img.onerror = function () {
+        URL.revokeObjectURL(url);
+        reject(new Error("that file couldn't be opened as an image"));
+      };
+      img.src = url;
+    });
+  }
+
+  function paintUpload(state) {
+    var host = $('[data-upload]');
+    if (!host) return;
+
+    if (!state) {
+      host.hidden = true;
+      host.innerHTML = '';
+      $('[data-dropzone]').hidden = false;
+      return;
+    }
+
+    $('[data-dropzone]').hidden = true;
+    host.hidden = false;
+    host.innerHTML =
+      '<div class="upload' + (state.done ? ' is-done' : '') + '">' +
+        '<div class="upload__thumb">' +
+          (state.src ? '<img src="' + esc(state.src) + '" alt="">' : '') +
+        '</div>' +
+        '<div class="upload__meta">' +
+          '<div class="upload__name">' + esc(state.name) + '</div>' +
+          '<div class="upload__sub">' + esc(state.sub) + '</div>' +
+          (state.done ? '' : '<div class="bar"><div class="bar__fill" style="width:' +
+            (state.progress || 0) + '%"></div></div>') +
+        '</div>' +
+        (state.done
+          ? '<button type="button" class="b b-danger b-sm" data-remove-photo>Remove</button>'
+          : '') +
+      '</div>';
+  }
+
+  /** Swap this for a real POST when the backend exists. */
+  function storeFile(file, onProgress) {
+    return new Promise(function (resolve, reject) {
+      // Fake the transfer so the interface behaves the way it will later.
+      var pct = 0;
+      var tick = setInterval(function () {
+        pct = Math.min(92, pct + 9 + Math.random() * 14);
+        onProgress(pct);
+      }, 90);
+
+      resizeImage(file).then(function (out) {
+        clearInterval(tick);
+        onProgress(100);
+        setTimeout(function () { resolve(out); }, 180);
+      }).catch(function (err) {
+        clearInterval(tick);
+        reject(err);
+      });
+    });
+  }
+
+  function handlePhoto(file) {
+    var err = $('[data-err="image"]');
+    err.textContent = '';
+
+    if (!file) return;
+    if (!/^image\//.test(file.type)) {
+      err.textContent = 'Pick an image file — JPG, PNG or WebP.';
+      return;
+    }
+    if (file.size > MAX_BYTES) {
+      err.textContent = 'That photo is ' + prettySize(file.size) +
+        '. The limit is ' + prettySize(MAX_BYTES) + ' — try a smaller one.';
+      return;
+    }
+
+    paintUpload({ name: file.name, sub: 'Uploading… ' + prettySize(file.size), progress: 4 });
+
+    storeFile(file, function (pct) {
+      var fill = $('[data-upload] .bar__fill');
+      if (fill) fill.style.width = pct + '%';
+    }).then(function (out) {
+      fld('image').value = out.dataUrl;
+      paintUpload({
+        name: file.name,
+        sub: out.width + ' × ' + out.height + ' · ' + prettySize(out.dataUrl.length * 0.75),
+        src: out.dataUrl,
+        done: true
+      });
+      paintPreview();
+      toast('Photo attached');
+    }).catch(function (e) {
+      paintUpload(null);
+      err.textContent = 'Upload failed — ' + e.message + '.';
+    });
+  }
+
+  function showExistingPhoto(url) {
+    if (!url) { paintUpload(null); return; }
+    paintUpload({
+      name: /^data:/.test(url) ? 'Uploaded photo' : url.replace(/^https?:\/\//, '').slice(0, 48),
+      sub: /^data:/.test(url) ? 'held in this browser' : 'linked from another site',
+      src: url,
+      done: true
+    });
+  }
+
+  function wireUpload() {
+    var zone = $('[data-dropzone]');
+    var input = $('[data-photo-input]');
+    if (!zone || !input) return;
+
+    zone.addEventListener('click', function () { input.click(); });
+    zone.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); input.click(); }
+    });
+
+    input.addEventListener('change', function () {
+      if (input.files && input.files[0]) handlePhoto(input.files[0]);
+      input.value = '';
+    });
+
+    ['dragenter', 'dragover'].forEach(function (t) {
+      zone.addEventListener(t, function (e) {
+        e.preventDefault();
+        zone.classList.add('is-over');
+      });
+    });
+    ['dragleave', 'drop'].forEach(function (t) {
+      zone.addEventListener(t, function (e) {
+        e.preventDefault();
+        zone.classList.remove('is-over');
+      });
+    });
+    zone.addEventListener('drop', function (e) {
+      var dt = e.dataTransfer;
+      if (dt && dt.files && dt.files[0]) handlePhoto(dt.files[0]);
+    });
+
+    // Dropping a file anywhere else in the window shouldn't navigate away.
+    ['dragover', 'drop'].forEach(function (t) {
+      global.addEventListener(t, function (e) {
+        if (!e.target.closest || !e.target.closest('[data-dropzone]')) e.preventDefault();
+      });
+    });
+  }
+
   /* ---------- editor --------------------------------------------- */
   function openEditor(id) {
     editing = id || null;
@@ -387,6 +578,7 @@
       cb.checked = !!(p && p.diets.indexOf(cb.value) > -1);
     });
 
+    showExistingPhoto(p && p.image ? p.image : '');
     clearErrors();
     paintPreview();
 
@@ -469,8 +661,9 @@
     if (isNaN(v.reviews) || v.reviews < 0) {
       setError('reviews', 'Enter 0 or more.'); ok = false;
     }
-    if (v.image && !/^https?:\/\//i.test(v.image)) {
-      setError('image', 'Start the address with http:// or https://.'); ok = false;
+    if (v.image && !/^(https?:\/\/|data:image\/)/i.test(v.image)) {
+      setError('image', 'Upload a file, or paste an address starting with http:// or https://.');
+      ok = false;
     }
     if (!v.id) {
       setError('id', 'A product code is needed.'); ok = false;
@@ -698,7 +891,8 @@
     doc.addEventListener('click', function (e) {
       var t = e.target.closest('[data-view],[data-new],[data-edit],[data-close-drawer],[data-scrim],' +
         '[data-save],[data-delete],[data-logout],[data-stock-up],[data-stock-down],[data-sort],' +
-        '[data-export-js],[data-export-json],[data-reset],[data-clear-log],[data-restock-all]');
+        '[data-export-js],[data-export-json],[data-reset],[data-clear-log],[data-restock-all],' +
+        '[data-remove-photo]');
       if (!t) return;
 
       if (t.hasAttribute('data-view')) { showView(t.getAttribute('data-view')); return; }
@@ -749,6 +943,14 @@
         repaint();
         paintNotice();
         toast('Back to the committed catalogue');
+        return;
+      }
+
+      if (t.hasAttribute('data-remove-photo')) {
+        fld('image').value = '';
+        paintUpload(null);
+        paintPreview();
+        toast('Photo removed');
         return;
       }
 
@@ -813,6 +1015,7 @@
     products = global.ZN.catalogue.all();
     buildFormOptions();
     wire();
+    wireUpload();
     paintNotice();
     repaint();
   }

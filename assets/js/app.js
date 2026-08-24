@@ -342,18 +342,9 @@
   }
 
   /* ---------- scroll reveal -------------------------------------- */
+  /* motion.js owns this now; the alias keeps older call sites working. */
   function reveal(scope) {
-    var nodes = (scope || doc).querySelectorAll('.reveal:not(.is-in)');
-    if (!('IntersectionObserver' in global)) {
-      Array.prototype.forEach.call(nodes, function (n) { n.classList.add('is-in'); });
-      return;
-    }
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (e) {
-        if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); }
-      });
-    }, { rootMargin: '0px 0px -40px 0px' });
-    Array.prototype.forEach.call(nodes, function (n) { io.observe(n); });
+    if (global.ZNMotion) global.ZNMotion.init(scope);
   }
 
   /* ---------- mount ---------------------------------------------- */
@@ -362,6 +353,14 @@
     var foot = doc.getElementById('zn-footer');
     if (head) head.innerHTML = headerHtml(active);
     if (foot) foot.innerHTML = footerHtml();
+
+    if (!doc.querySelector('[data-progress]')) {
+      var bar = doc.createElement('div');
+      bar.className = 'progress';
+      bar.setAttribute('data-progress', '');
+      bar.setAttribute('aria-hidden', 'true');
+      doc.body.insertBefore(bar, doc.body.firstChild);
+    }
 
     var extras = doc.createElement('div');
     extras.innerHTML = mobileNavHtml() + cartShellHtml() +

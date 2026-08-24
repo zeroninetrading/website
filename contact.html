@@ -8,7 +8,7 @@
 <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/main.css">
 </head>
 <body data-page="contact">
@@ -17,7 +17,7 @@
 
 <main id="main">
   <div class="pagehead">
-    <div class="wrap">
+    <div class="wrap" data-animate="fade-up">
       <nav class="crumbs" aria-label="Breadcrumb"><a href="index.html">Home</a><span>/</span><span>Contact</span></nav>
       <h1>Talk to the office</h1>
       <p class="section__lead">Someone answers the phone between 8:00 and 17:00 on working days. Email is usually answered the same afternoon.</p>
@@ -25,7 +25,7 @@
   </div>
 
   <div class="wrap section split">
-    <div>
+    <div data-animate="slide-left">
       <h2 style="margin-bottom:16px">Send us a message</h2>
       <form data-contact novalidate>
         <div class="field">
@@ -55,7 +55,7 @@
       </form>
     </div>
 
-    <div>
+    <div data-animate="slide-right">
       <div class="infocard">
         <h3>Office and warehouse</h3>
         <div class="infoline" data-info="pin"><b>Lefkosias 53, Latsia</b><span>2236 Nicosia, Cyprus</span></div>
@@ -80,13 +80,13 @@
   </div>
 
   <div class="wrap section--tight section">
-    <div class="section__head">
+    <div class="section__head" data-animate="fade-up">
       <div>
         <div class="eyebrow">Before you write</div>
         <h2>Questions we get most</h2>
       </div>
     </div>
-    <div class="faq" data-faq></div>
+    <div class="faq" data-faq data-animate="fade-up"></div>
   </div>
 </main>
 
@@ -96,6 +96,7 @@
 <script src="assets/js/content.js"></script>
 <script src="assets/js/store.js"></script>
 <script src="assets/js/packshot.js"></script>
+<script src="assets/js/motion.js"></script>
 <script src="assets/js/app.js"></script>
 <script src="assets/js/pages.js"></script>
 </body>
