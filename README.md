@@ -160,18 +160,36 @@ progress bar is hidden and the hero product stops turning on its own.
 
 ### The rotating product
 
-`assets/js/bottle3d.js`, on the homepage. No WebGL and no 3D library.
+`assets/js/bottle3d.js`, on the homepage. No WebGL, no 3D library, nothing to
+load.
 
 A bottle is a surface of revolution, so its outline is identical from every
 angle — the only things that actually change as it turns are the label and the
 highlight. So the silhouette is drawn once and the label is mapped around it as
-a cylinder: each column of a flat label texture is placed at `x = R·sin(θ)` and
-squeezed by `cos(θ)`, with a Lambert term over the same angle for shading.
+a cylinder: each column of a flat label texture is placed at `x = R·sin θ` and
+squeezed by `cos θ`.
 
-It supports three shapes (`bottle`, `jar`, `tin`), each with its own
-proportions, and the hero cycles through four featured products. You can drag it
-or use the arrow keys. It only animates while it's on screen, and it falls back
-to the flat illustration if canvas isn't available.
+The part that sells it is the vertical offset. The view is tilted slightly
+downward, so a horizontal circle on the cylinder projects to an ellipse and a
+point at angle θ sits `Ez·cos θ` lower on screen — near side low, far side high.
+Applying that per column bows the label, which is what stops it reading as a
+flat sticker wrapped round a cartoon. The cap's knurling is placed on the same
+angle, so it travels round as the bottle turns.
+
+On top of that: a specular streak and a rim light off the back edge, occlusion
+into both sides, a curved base rim, a soft contact shadow, and a flipped
+reflection below.
+
+Three shapes are supported — `bottle`, `jar`, `tin` — each with its own profile,
+height and girth, because one set of proportions makes a tin look stretched.
+The profiles are functions returning radius against height, so adding a shape
+means adding one function and one layout entry.
+
+Drag it or use the arrow keys. It only animates while it's on screen, gradients
+are cached between frames, and only the box the bottle occupies is composited
+rather than the whole canvas. Under `prefers-reduced-motion` it stops turning on
+its own but can still be dragged. If canvas isn't available, `create()` returns
+null and the hero falls back to the flat illustration.
 
 ---
 
