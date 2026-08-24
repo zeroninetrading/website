@@ -79,7 +79,7 @@
       if (bc) bc.textContent = Object.keys(ZN_BRANDS).length;
 
       if (recipeList) {
-        recipeList.innerHTML = ZN_RECIPES.map(function (r, i) {
+        recipeList.innerHTML = ZN_RECIPES.map(function (r) {
           var used = (r.uses || []).map(function (id) {
             return products.filter(function (p) { return p.id === id; })[0];
           }).filter(Boolean);
@@ -90,7 +90,9 @@
 
           return '<article id="' + esc(r.id) + '" class="infocard" style="margin-bottom:22px;padding:0;overflow:hidden">' +
             '<div style="display:grid;grid-template-columns:minmax(0,220px) minmax(0,1fr);gap:0" class="recipe-row">' +
-              '<div class="recipe__art" style="aspect-ratio:auto;min-height:100%">' + ZNArt.recipeArt(i, '#174436') + '</div>' +
+              '<div class="recipe__art" style="aspect-ratio:auto;min-height:100%">' +
+                '<img src="' + esc(r.image) + '" alt="" loading="lazy" width="600" height="400">' +
+              '</div>' +
               '<div style="padding:26px">' +
                 '<div class="recipe__date">' + esc(r.date) + ' · ' + r.minutes + ' minutes</div>' +
                 '<h2 style="font-size:1.5rem;margin-bottom:10px">' + esc(r.title) + '</h2>' +

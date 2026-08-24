@@ -1,0 +1,8 @@
+# Zero Nine Trading — demo build
+User-agent: *
+Disallow: /admin.html
+
+# Note: on a GitHub Pages project site this file is served from
+# /website/robots.txt, which crawlers ignore — they only read the file at the
+# domain root. The admin page also carries <meta name="robots" content="noindex">,
+# which does apply, and the real protection is that nothing links to it.

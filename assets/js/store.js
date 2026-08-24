@@ -28,6 +28,7 @@ window.ZN_CONFIG = {
   'use strict';
 
   var CART_KEY = 'zn.cart.v1';
+  var CATALOGUE_KEY = 'zn.catalogue.v1';   // written by the admin panel
 
   /* ---------- storage with a graceful fallback ------------------ */
   var memory = {};
@@ -92,12 +93,27 @@ window.ZN_CONFIG = {
     });
   }
 
+  /* Edits made in the admin panel are held here until they're exported
+     and committed. If none exist, the bundled catalogue is used. */
+  function savedCatalogue() {
+    try {
+      var raw = read(CATALOGUE_KEY);
+      if (!raw) return null;
+      var data = JSON.parse(raw);
+      return Array.isArray(data) && data.length ? data : null;
+    } catch (e) { return null; }
+  }
+
+  function source() {
+    return savedCatalogue() || global.ZN_PRODUCTS || [];
+  }
+
   function load() {
     if (cache) return Promise.resolve(cache);
 
     var url = global.ZN_CONFIG.apiUrl;
     if (!url) {
-      cache = normalise(global.ZN_PRODUCTS || []);
+      cache = normalise(source());
       return Promise.resolve(cache);
     }
     return fetch(url)
@@ -111,16 +127,34 @@ window.ZN_CONFIG = {
       })
       .catch(function () {
         // Never leave the shop empty because an API call failed.
-        cache = normalise(global.ZN_PRODUCTS || []);
+        cache = normalise(source());
         return cache;
       });
   }
 
   function byId(id) {
-    return (cache || normalise(global.ZN_PRODUCTS || [])).filter(function (p) {
+    return (cache || normalise(source())).filter(function (p) {
       return p.id === id;
     })[0] || null;
   }
+
+  /* Used by the admin panel. */
+  var catalogue = {
+    /** Everything, unnormalised, exactly as it will be exported. */
+    all: function () { return JSON.parse(JSON.stringify(source())); },
+    save: function (list) {
+      write(CATALOGUE_KEY, JSON.stringify(list));
+      cache = null;
+    },
+    reset: function () {
+      try {
+        if (canStore) global.localStorage.removeItem(CATALOGUE_KEY);
+        else delete memory[CATALOGUE_KEY];
+      } catch (e) { delete memory[CATALOGUE_KEY]; }
+      cache = null;
+    },
+    isEdited: function () { return savedCatalogue() !== null; }
+  };
 
   /* ---------- cart ---------------------------------------------- */
   var listeners = [];
@@ -197,6 +231,7 @@ window.ZN_CONFIG = {
       get: getCart, add: add, setQty: setQty, remove: remove,
       clear: clear, count: count, detailed: detailed, onChange: onChange
     },
+    catalogue: catalogue,
     storageAvailable: canStore
   };
 })(window);

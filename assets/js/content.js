@@ -7,6 +7,7 @@
 window.ZN_RECIPES = [
   {
     id: 'gf-banana-muffins',
+    image: 'assets/img/recipe-muffins.svg',
     steps: [
       'Heat the oven to 180°C. Mash three very ripe bananas — the blacker the better.',
       'Stir in 200 g almond flour, 60 g gluten-free oat flakes, two eggs, a tablespoon of molasses and a teaspoon of baking powder.',
@@ -21,6 +22,7 @@ window.ZN_RECIPES = [
   },
   {
     id: 'green-morning-smoothie',
+    image: 'assets/img/recipe-smoothie.svg',
     steps: [
       'Blend one frozen banana with 200 ml coconut water until smooth.',
       'Add half a teaspoon of moringa powder — no more on the first attempt.',
@@ -35,6 +37,7 @@ window.ZN_RECIPES = [
   },
   {
     id: 'carob-date-toast',
+    image: 'assets/img/recipe-toast.svg',
     steps: [
       'Toast two slices of gluten-free bread until the edges colour.',
       'Spread the carob and date paste while the bread is still warm so it loosens.',
@@ -48,6 +51,7 @@ window.ZN_RECIPES = [
   },
   {
     id: 'no-sugar-baking',
+    image: 'assets/img/recipe-baking.svg',
     steps: [
       'Xylitol: swap 1:1 for sugar by weight. It browns less, so give cakes an extra three or four minutes.',
       'Fructose: use about two thirds the weight of sugar. It browns faster — drop the oven 10°C.',
@@ -62,6 +66,7 @@ window.ZN_RECIPES = [
   },
   {
     id: 'tahini-dressing',
+    image: 'assets/img/recipe-tahini.svg',
     steps: [
       'Put three tablespoons of tahini in a bowl with the juice of one lemon. It will seize and go stiff. This is normal.',
       'Add cold water a tablespoon at a time, whisking, until it loosens into a pourable cream.',
@@ -75,6 +80,7 @@ window.ZN_RECIPES = [
   },
   {
     id: 'overnight-oats',
+    image: 'assets/img/recipe-oats.svg',
     steps: [
       'Mix 50 g certified gluten-free oat flakes with 120 ml of milk or a plant drink.',
       'Add a tablespoon of maple syrup and two chopped dried plums.',

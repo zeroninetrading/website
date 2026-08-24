@@ -1,72 +1,58 @@
-# Change Summary — Zero Nine Trading website remake (demo) — 24 Aug 2026
-
-Initial build. Static, framework-free rebuild of https://zeronine.com.cy/ off
-WordPress/WooCommerce, deployable to GitHub Pages as-is. All paths are under
-`zeronine/`.
+# Change Summary — illustration set + admin panel — 24 Aug 2026
 
 ## Files Created
 
-### Pages
-- `zeronine/index.html` — homepage: hero with dietary product finder, best sellers rail, department tiles, heritage strip, offers, brands, recipes, newsletter
-- `zeronine/shop.html` — catalogue with filter sidebar, sort, search, chips and load-more
-- `zeronine/product.html` — product detail, rendered from `?id=<product-id>`
-- `zeronine/about.html` — company story, certifications, brand strip
-- `zeronine/contact.html` — enquiry form, office details, FAQ
-- `zeronine/recipes.html` — six recipe articles, each linking to the products it uses
-- `zeronine/404.html` — not-found page (GitHub Pages picks this up automatically)
+### Admin panel (not linked from the public site)
+- `zeronine/admin.html` — password-gated admin: dashboard, products, inventory, activity log, publish
+- `zeronine/assets/css/admin.css` — admin styling, deliberately distinct from the shop
+- `zeronine/assets/js/admin.js` — admin logic; never loaded by a public page
+- `zeronine/robots.txt` — disallows `/admin.html`
 
-### Styles
-- `zeronine/assets/css/main.css` — complete stylesheet; all brand values are CSS variables in a single `:root` block
+### Illustration set
+- `zeronine/tools/make-images.js` — generator that writes every image below from shared primitives
+- `zeronine/assets/img/cat-organic.svg`, `cat-gluten-free.svg`, `cat-no-sugar.svg`, `cat-supplements.svg`, `cat-natural.svg`, `cat-vegan.svg` — department tile images
+- `zeronine/assets/img/recipe-muffins.svg`, `recipe-smoothie.svg`, `recipe-toast.svg`, `recipe-baking.svg`, `recipe-tahini.svg`, `recipe-oats.svg` — recipe images
+- `zeronine/assets/img/banner-organic.svg`, `banner-gluten-free.svg`, `banner-offers.svg` — wide promo banners
+- `zeronine/assets/img/about-warehouse.svg` — about-page editorial image
 
-### Scripts
-- `zeronine/assets/js/products.js` — catalogue: 70 products, 10 brands, 6 categories, 4 diet tags. Single source of truth, shaped to match the future admin API response
-- `zeronine/assets/js/content.js` — recipe and FAQ copy, kept out of the catalogue file
-- `zeronine/assets/js/store.js` — `ZN_CONFIG` (contact details, delivery fees), catalogue loading, cart state, € formatting
-- `zeronine/assets/js/packshot.js` — generates the product illustrations as SVG from pack type + brand colour
-- `zeronine/assets/js/app.js` — shared chrome: header, footer, mobile nav, cart drawer, toasts, product card renderer
-- `zeronine/assets/js/home.js` — homepage behaviour
-- `zeronine/assets/js/shop.js` — filtering, sorting, URL state, pagination
-- `zeronine/assets/js/product.js` — product page, tabs, related products, structured data
-- `zeronine/assets/js/pages.js` — about, contact, recipes and 404 behaviour
-
-### Assets
-- `zeronine/assets/img/logo.svg` — local logo mark, used only if the hotlinked logo fails to load
-- `zeronine/assets/img/favicon.svg` — favicon
-
-### Repo files
-- `zeronine/README.md` — deployment steps, file map, how to change colours/products/config, backend connection instructions
-- `zeronine/.nojekyll` — stops GitHub Pages running the files through Jekyll
+## Files Modified
+- `zeronine/index.html` — added a two-up promo banner strip and an offers banner; catalogue link text is now set from the product count instead of being hardcoded
+- `zeronine/about.html` — added the warehouse figure above the story
+- `zeronine/assets/css/main.css` — category tiles rebuilt around an image; new `.promo` and `.figure` styles; recipe art now holds an image
+- `zeronine/assets/js/products.js` — added 12 products across Byodo, Roo Bar and Biagi, which were listed as brands but had no stock; categories now carry an `image`
+- `zeronine/assets/js/content.js` — each recipe now carries an `image`
+- `zeronine/assets/js/store.js` — catalogue now reads admin edits from local storage before falling back to the bundled file; added `ZN.catalogue` (all/save/reset/isEdited) for the admin panel
+- `zeronine/assets/js/home.js` — category tiles and recipe cards use the new images; catalogue link text set from the live count
+- `zeronine/assets/js/pages.js` — recipe articles use the new images
+- `zeronine/assets/js/app.js` — search placeholder no longer hardcodes a product count
+- `zeronine/README.md` — documented the admin panel, the password caveat, the publish workflow and the image generator
+- `setup.sh` — routes the new files (admin, images, `tools/`); required-file list grew from 20 to 39; asset-reference check now covers all 8 pages instead of just `index.html`; JS syntax check includes `tools/`
 
 ## Notes
 
-**Deploying**
-- Push the *contents* of `zeronine/` to the repo root — `index.html` must be at the top level, not inside a subfolder.
-- Settings → Pages → Deploy from a branch → `/ (root)`. No build step, nothing to install.
-- Every path is relative, so it works from `https://user.github.io/repo/` without changes.
+**Admin access**
+- URL: `admin.html` — e.g. `https://zeroninetrading.github.io/website/admin.html`
+- Password: `zeronine2026`
+- Nothing on the public site links to it. Verified by a test that greps every public HTML and JS file for admin references.
 
-**Colour palette — needs your input before the client sees it**
-- The exact hex values could not be read off the existing logo file, so the palette is a deliberate organic direction rather than a sample: `--pine: #174436`, `--lime: #B9DC55`, `--paper: #F2F5EC`, `--ink: #0E2A22`.
-- All four sit in the `:root` block at the top of `assets/css/main.css`. Eyedropping the real logo and replacing them re-skins the entire site and touches nothing else.
+**The password is a demo gate, not security.** It is checked in the browser, so anyone who reads the page source can get past it. It keeps the panel out of casual view during a client demo and nothing more. Say so if the client asks. The production version must authenticate on the server before returning or writing any product data. To change it, edit `PASSWORD_DIGEST` in `assets/js/admin.js`.
 
-**Logo**
-- The header and footer load the real logo from `https://zeronine.com.cy/wp-content/uploads/2022/03/logo-newsmall.png`, with `assets/img/logo.svg` as an automatic fallback. To bundle it instead, drop the file in `assets/img/` and change `LOGO_REMOTE` near the top of `assets/js/app.js`.
+`robots.txt` is included but on a GitHub Pages project site it is served from `/website/robots.txt`, which crawlers ignore — they only read the domain root. The `<meta name="robots" content="noindex">` on the page does apply.
 
-**Product imagery**
-- The live site has inconsistent and partly missing photography, so each product is illustrated from its own data. Every product record has an `image` field — put a photo URL there and that product switches to the photo, so the catalogue can be converted to real photography gradually.
+**How admin edits reach the shop**
+- Edits are held in the browser's local storage under `zn.catalogue.v1`, and `ZN.load()` reads that before the bundled file. Change a price in the admin, reload the shop on the same machine, and the new price is there. This is the thing to demo.
+- Nobody else sees those edits. To publish: Publish & data → Download products.js → replace `assets/js/products.js` → run `./setup.sh`.
+- "Discard my changes" clears the override and returns to the committed catalogue.
 
-**Backend hook (phase two)**
-- `ZN.load()` in `store.js` is the only thing on the site that reads product data.
-- Set `ZN_CONFIG.apiUrl` to the admin API endpoint and the whole site switches from the bundled file to live JSON. If the request fails it falls back to the bundled data rather than showing an empty shop.
-- The API should return a bare array or `{ "products": [...] }` using the field names documented in `products.js`.
+**Catalogue grew from 70 to 82 products.** Byodo, Roo Bar and Biagi were listed as brands with zero products, so their brand pages and filters came up empty. All counts shown on the site are now derived from the data rather than written into the copy.
 
-**Demo limitations, deliberate**
-- Checkout, contact form and newsletter are non-functional and say so in the interface. A "Demo build" flag sits in the top bar.
-- The contact page map is a placeholder so the page loads without third-party scripts.
+**Images are template artwork**, generated rather than photographed — the client has no consistent photography. To change them, edit `tools/make-images.js` and run `node tools/make-images.js`. Replacing any one with a photograph is a one-line change wherever the filename appears.
 
 **Testing done**
-- All nine JS files pass `node --check`.
-- A jsdom harness boots all seven pages and drives them: 58 assertions covering rendering, add-to-basket, quantity changes, filter/sort/clear, search, empty results, sold-out products, invalid product IDs and form validation. All passing.
-- Packshots were rasterised and inspected three times; two issues found and fixed (same-brand products rendering identically, and light brand colours failing contrast against white label text).
+- New admin suite: 55 assertions covering the password gate (wrong and right), dashboard figures, table search/filter/sort, stock steppers, the editor's validation rules (required fields, old price must exceed price, malformed photo URL, duplicate product code), add/edit/delete, the activity log, inventory tables, restock-all, export, reset and sign-out. It also evaluates the exported `products.js` in a clean sandbox to confirm it parses and round-trips the full catalogue.
+- Existing 58-assertion public-site suite re-run and passing after the catalogue and image changes.
+- Both suites re-run against the delivered copy in the outputs folder, not just the working copy.
+- Every illustration rasterised and inspected; four defects found and fixed (muffins reading as mushrooms, bowl contents painted over by the rim, dietary badges cropped at the canvas edge, kitchen scale reading as a featureless slab).
+- `setup.sh` re-tested by flattening all 42 files into one folder and confirming it rebuilt the tree correctly.
 
-**Dependencies**
-- None to install. The only external request is Google Fonts (Bricolage Grotesque, Instrument Sans, DM Mono). If the client wants zero third-party requests, self-host the three families in `assets/` and swap the `<link>` in each page's `<head>`.
+**One real bug caught during testing:** the editor read its fields via form named-property access (`form.name`, `form.id`). Those resolve to the form element's own attributes rather than the controls, which would have broken saving in every browser. All field access is now by element id.

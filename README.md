@@ -45,9 +45,12 @@ about.html          Company story
 contact.html        Enquiry form + FAQ
 recipes.html        Recipe articles that link to the products they use
 404.html            Not found
+admin.html          Product & inventory admin  (not linked from the shop)
 
-assets/css/main.css All styling. Every brand value is a CSS variable in :root.
-assets/img/         Logo fallback and favicon.
+assets/css/main.css Public site styling. Brand values are CSS variables in :root.
+assets/css/admin.css Admin panel styling.
+assets/img/         Logo, favicon, and the illustration set.
+tools/make-images.js Regenerates the illustration set.
 
 assets/js/
   products.js       THE CATALOGUE — 70 products, brands, categories, diets
@@ -59,6 +62,7 @@ assets/js/
   shop.js           Catalogue filtering and sorting
   product.js        Product detail page
   pages.js          About, contact, recipes, 404
+  admin.js          Admin panel — never loaded by a public page
 ```
 
 ---
@@ -118,6 +122,51 @@ on the site reads from there, including the footer and the cart totals.
 
 ---
 
+## The admin panel
+
+`admin.html`. Nothing on the public site links to it — no nav entry, no footer
+link, no mention in any public file. You reach it by typing the address.
+
+**Password:** `zeronine2026`
+
+> **This is a demo gate, not security.** The password is checked in the browser,
+> so anyone who reads the page source can get past it. It keeps the panel out of
+> casual view during a client demo and nothing more. The production version
+> authenticates on the server and refuses to return or write product data
+> without a valid session. Don't put anything sensitive behind it.
+>
+> To change the password, edit `PASSWORD_DIGEST` in `assets/js/admin.js`. The
+> digest is produced by the `digest()` function in that same file.
+
+### What it does
+
+- **Dashboard** — product count, stock levels, retail value of inventory, and
+  what needs attention.
+- **Products** — searchable, filterable, sortable table of everything. Edit any
+  field, add a product, delete one. Every row has a **View** link that opens
+  that product on the shop.
+- **Inventory** — sold-out and low-stock lists with stock steppers you can adjust
+  in place, plus stock value broken down by brand.
+- **Activity** — a log of every change made in the panel, newest first.
+- **Publish & data** — export, import, and reset.
+
+### Publishing changes
+
+There's no backend yet, so edits are held in the browser's local storage. They
+show on the shop **on that machine straight away** — change a price in the admin
+and reload the shop to see it — but nobody else sees them.
+
+To publish for real:
+
+1. Admin → **Publish & data** → **Download products.js**
+2. Replace `assets/js/products.js` in the repository with the downloaded file
+3. Run `./setup.sh` to commit and push
+
+**Discard my changes** on the same screen throws away everything held in the
+browser and goes back to the committed catalogue.
+
+---
+
 ## Product imagery
 
 The current site has inconsistent and in places missing product photography, so
@@ -128,9 +177,24 @@ shapes are supported: `jar`, `bottle`, `pouch`, `box`, `carton`, `bread`, `bar`,
 
 The result is one consistent look across all 70 items without a photoshoot.
 
-When real photography arrives, put the URL in a product's `image` field and that
-product switches to the photo. Illustrated and photographed products can coexist,
-so the catalogue can be converted gradually rather than all at once.
+When real photography arrives, put the URL in a product's `image` field — there's
+a **Photo URL** box on every product in the admin panel — and that product
+switches to the photo. Illustrated and photographed products can coexist, so the
+catalogue can be converted gradually rather than all at once.
+
+### The rest of the illustrations
+
+Category tiles, recipe cards, promo banners and the about-page image are static
+SVGs in `assets/img/`, generated from shared primitives by
+`tools/make-images.js` so the whole set shares one visual language. To change
+them, edit that file and run:
+
+```bash
+node tools/make-images.js
+```
+
+These are template artwork for the demo. Swapping any of them for a photograph
+is a one-line change wherever the filename appears.
 
 ---
 
@@ -156,9 +220,9 @@ rather than showing an empty shop.
 The API should return either a bare array of products or `{ "products": [...] }`.
 Field names are listed above; anything missing gets a sensible default.
 
-That means the admin panel we build next only has to manage prices, images,
-stock and product details, and write JSON in this shape. No template changes,
-no redeploy, no WordPress.
+The admin panel in `admin.html` already edits exactly this shape, so connecting
+it to a real backend means changing where it reads and writes — the interface
+itself doesn't change. No template edits, no redeploy, no WordPress.
 
 ---
 

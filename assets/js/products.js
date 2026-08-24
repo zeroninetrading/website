@@ -42,12 +42,12 @@ window.ZN_BRANDS = {
 };
 
 window.ZN_CATEGORIES = [
-  { id: 'organic',     name: 'Organic',        blurb: 'Certified organic pantry staples' },
-  { id: 'gluten-free', name: 'Gluten free',    blurb: 'Breads, bakery and cereals for coeliacs' },
-  { id: 'no-sugar',    name: 'No sugar',       blurb: 'Sweeteners and treats for diabetics' },
-  { id: 'supplements', name: 'Supplements',    blurb: 'Powders, seeds and functional foods' },
-  { id: 'natural',     name: 'Natural care',   blurb: 'Household and personal care' },
-  { id: 'vegan',       name: 'Vegan',          blurb: 'Plant-based across every aisle' }
+  { id: 'organic',     name: 'Organic',      blurb: 'Certified organic pantry staples',        image: 'assets/img/cat-organic.svg' },
+  { id: 'gluten-free', name: 'Gluten free',  blurb: 'Breads, bakery and cereals for coeliacs', image: 'assets/img/cat-gluten-free.svg' },
+  { id: 'no-sugar',    name: 'No sugar',     blurb: 'Sweeteners and treats for diabetics',     image: 'assets/img/cat-no-sugar.svg' },
+  { id: 'supplements', name: 'Supplements',  blurb: 'Powders, seeds and functional foods',     image: 'assets/img/cat-supplements.svg' },
+  { id: 'natural',     name: 'Natural care', blurb: 'Household and personal care',             image: 'assets/img/cat-natural.svg' },
+  { id: 'vegan',       name: 'Vegan',        blurb: 'Plant-based across every aisle',          image: 'assets/img/cat-vegan.svg' }
 ];
 
 /* Diet labels — these drive the filter pills and the badges on every card. */
@@ -139,6 +139,24 @@ window.ZN_PRODUCTS = [
   { id: 'biovlastos-damaskina-200g', name: 'Bio Damaskina (Dried Plums)', brand: 'Biovlastos', category: 'organic', price: 6.75, size: '200 g', diets: ['organic','vegan','gluten-free','no-sugar'], stock: 23, rating: 0, reviews: 0, pack: 'sachet', blurb: 'Soft, pitted, no sulphites and no added sugar.' },
   { id: 'biovlastos-date-cacao-220g', name: 'Bio Date & Cacao Spread', brand: 'Biovlastos', category: 'no-sugar', price: 7.50, size: '220 g', diets: ['organic','vegan','gluten-free','no-sugar'], stock: 18, rating: 0, reviews: 0, pack: 'jar', blurb: 'Sweetened entirely by dates. Tastes like a soft brownie.' },
   { id: 'biovlastos-date-carob-220g', name: 'Bio Date & Carob Spread', brand: 'Biovlastos', category: 'no-sugar', price: 7.50, size: '220 g', diets: ['organic','vegan','gluten-free','no-sugar'], stock: 19, rating: 0, reviews: 0, pack: 'jar', blurb: 'Cyprus carob instead of cocoa. Caffeine free.' },
+
+  /* ----------------------------------------------------------- Byodo */
+  { id: 'byodo-balsamico-250ml', name: 'Bio Balsamic Vinegar of Modena', brand: 'Byodo', category: 'organic', price: 4.95, size: '250 ml', diets: ['organic','vegan','gluten-free'], stock: 22, rating: 5, reviews: 4, pack: 'bottle', blurb: 'Aged, syrupy and sweet enough to finish a salad on its own.' },
+  { id: 'byodo-tomato-basilico-340g', name: 'Bio Tomato Sauce Basilico', brand: 'Byodo', category: 'organic', price: 3.60, size: '340 g', diets: ['organic','vegan','gluten-free'], stock: 30, rating: 0, reviews: 0, pack: 'jar', blurb: 'Tomatoes, basil, oil, salt. A weeknight pasta sauce with nothing hidden in it.' },
+  { id: 'byodo-sunflower-oil-500ml', name: 'Bio Sunflower Oil', brand: 'Byodo', category: 'organic', price: 5.20, size: '500 ml', diets: ['organic','vegan','gluten-free'], stock: 18, rating: 0, reviews: 0, pack: 'bottle', blurb: 'Neutral and high-smoking. The one for frying rather than dressing.' },
+  { id: 'byodo-rice-vinegar-250ml', name: 'Bio Rice Vinegar', brand: 'Byodo', category: 'organic', price: 4.30, size: '250 ml', diets: ['organic','vegan','gluten-free'], stock: 14, rating: 0, reviews: 0, pack: 'bottle', blurb: 'Mild and slightly sweet. For sushi rice and quick pickles.' },
+
+  /* --------------------------------------------------------- Roo Bar */
+  { id: 'roobar-cacao-cashew-30g', name: 'Bio Raw Bar Cacao & Cashew', brand: 'Roo Bar', category: 'organic', price: 1.75, size: '30 g', diets: ['organic','vegan','gluten-free','no-sugar'], stock: 52, rating: 5, reviews: 6, pack: 'bar', blurb: 'Dates, cashews and raw cacao pressed together. No sugar added at all.' },
+  { id: 'roobar-goji-vanilla-30g', name: 'Bio Raw Bar Goji & Vanilla', brand: 'Roo Bar', category: 'organic', price: 1.75, size: '30 g', diets: ['organic','vegan','gluten-free','no-sugar'], stock: 47, rating: 4.5, reviews: 4, pack: 'bar', blurb: 'Tart goji against soft vanilla. The lightest of the range.' },
+  { id: 'roobar-protein-cacao-60g', name: 'Bio Protein Bar Cacao', brand: 'Roo Bar', category: 'supplements', price: 2.60, size: '60 g', diets: ['organic','vegan','gluten-free'], stock: 26, rating: 5, reviews: 3, pack: 'bar', blurb: 'Ten grams of plant protein, and it still tastes like a snack.' },
+  { id: 'roobar-hemp-spirulina-30g', name: 'Bio Raw Bar Hemp & Spirulina', brand: 'Roo Bar', category: 'supplements', price: 1.85, size: '30 g', diets: ['organic','vegan','gluten-free','no-sugar'], stock: 0, rating: 0, reviews: 0, pack: 'bar', blurb: 'Green, grassy and an acquired taste. People who like it buy a box.' },
+
+  /* ----------------------------------------------------------- Biagi */
+  { id: 'biagi-penne-rigate-500g', name: 'Bio Penne Rigate', brand: 'Biagi', category: 'organic', price: 3.10, size: '500 g', diets: ['organic','vegan'], stock: 36, rating: 5, reviews: 5, pack: 'box', blurb: 'Bronze-drawn, so the surface is rough enough to hold a sauce.' },
+  { id: 'biagi-passata-700g', name: 'Bio Passata di Pomodoro', brand: 'Biagi', category: 'organic', price: 3.45, size: '700 g', diets: ['organic','vegan','gluten-free'], stock: 28, rating: 0, reviews: 0, pack: 'bottle', blurb: 'Sieved Italian tomatoes, nothing else in the bottle.' },
+  { id: 'biagi-olive-oil-500ml', name: 'Bio Extra Virgin Olive Oil', brand: 'Biagi', category: 'organic', price: 9.80, size: '500 ml', diets: ['organic','vegan','gluten-free'], stock: 16, rating: 5, reviews: 7, pack: 'bottle', blurb: 'Peppery at the back of the throat, which is how you know it is fresh.' },
+  { id: 'biagi-arborio-rice-500g', name: 'Bio Arborio Rice', brand: 'Biagi', category: 'organic', price: 4.20, size: '500 g', diets: ['organic','vegan','gluten-free'], stock: 24, rating: 0, reviews: 0, pack: 'box', blurb: 'Short, starchy grains that turn creamy without any cream.' },
 
   /* --------------------------------------------------------- Sudanta */
   { id: 'sudanta-toothpaste-100g', name: 'EcoCert Ayurvedic Herbal Toothpaste', brand: 'Sudanta', category: 'natural', price: 6.90, size: '100 g', diets: ['vegan'], stock: 25, rating: 0, reviews: 0, pack: 'tube', blurb: 'No fluoride and no foaming agents. Twenty-six herbs.' }

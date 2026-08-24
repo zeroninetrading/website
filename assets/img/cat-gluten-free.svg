@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 360" width="480" height="360" role="img"><rect width="480" height="360" fill="#F2F5EC"/><circle cx="240" cy="165.6" r="144" fill="#F3E3C4"/><circle cx="398.4" cy="79.2" r="43.199999999999996" fill="#F3E3C4" fill-opacity="0.6"/><circle cx="67.2" cy="266.4" r="32.4" fill="#F3E3C4" fill-opacity="0.5"/><ellipse cx="238" cy="312" rx="132" ry="18.48" fill="#0E2A22" fill-opacity="0.08"/><g transform="translate(238 306) scale(1.02)">
+    <path d="M-86 0 v-48 q0-58 86-58 t86 58 v48 q0 12-12 12 h-148 q-12 0-12-12 z" fill="#E7C98F"/>
+    <path d="M-86 -34 h172" stroke="#F3E3C4" stroke-width="6" stroke-linecap="round"/>
+    <path d="M-52 -96 q10 22 0 44 M0 -104 q10 24 0 48 M52 -96 q10 22 0 44"
+          stroke="#F3E3C4" stroke-width="7" fill="none" stroke-linecap="round" opacity="0.85"/>
+  </g><g transform="translate(376 288) rotate(8) scale(0.86)">
+    <path d="M-54 20 v-46 q0-40 54-40 t54 40 v46 q0 8-8 8 h-92 q-8 0-8-8 z" fill="#F3E3C4" stroke="#E7C98F" stroke-width="5"/>
+  </g><g transform="translate(400 104) scale(0.62)">
+    <circle cx="0" cy="0" r="66" fill="#FAF7EE"/>
+    <path d="M0 52 v-96" stroke="#E7C98F" stroke-width="6" stroke-linecap="round"/>
+    <ellipse cx="-12" cy="20" rx="10" ry="14" fill="#E7C98F" transform="rotate(-20 -12 20)"/><ellipse cx="12" cy="20" rx="10" ry="14" fill="#E7C98F" transform="rotate(20 12 20)"/><ellipse cx="-12" cy="0" rx="10" ry="14" fill="#E7C98F" transform="rotate(-20 -12 0)"/><ellipse cx="12" cy="0" rx="10" ry="14" fill="#E7C98F" transform="rotate(20 12 0)"/><ellipse cx="-12" cy="-20" rx="10" ry="14" fill="#E7C98F" transform="rotate(-20 -12 -20)"/><ellipse cx="12" cy="-20" rx="10" ry="14" fill="#E7C98F" transform="rotate(20 12 -20)"/><ellipse cx="-12" cy="-40" rx="10" ry="14" fill="#E7C98F" transform="rotate(-20 -12 -40)"/><ellipse cx="12" cy="-40" rx="10" ry="14" fill="#E7C98F" transform="rotate(20 12 -40)"/>
+    <circle cx="0" cy="0" r="60" fill="none" stroke="#B33A2E" stroke-width="9"/>
+    <path d="M-42 42 L42 -42" stroke="#B33A2E" stroke-width="9" stroke-linecap="round"/>
+  </g></svg>

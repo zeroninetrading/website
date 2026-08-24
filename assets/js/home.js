@@ -71,13 +71,13 @@
     /* ---------- department tiles -------------------------------- */
     doc.querySelector('[data-cats]').innerHTML = ZN_CATEGORIES.map(function (c) {
       var n = products.filter(function (p) { return p.category === c.id; }).length;
-      var tint = ZNArt.mix('#174436', '#B9DC55', 0.35);
       return '<a class="cat-tile" href="shop.html?category=' + c.id + '">' +
-        '<div class="cat-tile__art" aria-hidden="true">' + ZNArt.categoryArt(tint) + '</div>' +
-        '<h3>' + esc(c.name) + '</h3>' +
-        '<p>' + esc(c.blurb) + '</p>' +
-        '<span class="cat-tile__count">' + n + ' product' + (n === 1 ? '' : 's') + '</span>' +
-      '</a>';
+        '<div class="cat-tile__img"><img src="' + esc(c.image) + '" alt="" loading="lazy" width="480" height="360"></div>' +
+        '<div class="cat-tile__body">' +
+          '<h3>' + esc(c.name) + '</h3>' +
+          '<p>' + esc(c.blurb) + '</p>' +
+          '<span class="cat-tile__count">' + n + ' product' + (n === 1 ? '' : 's') + '</span>' +
+        '</div></a>';
     }).join('');
 
     /* ---------- offers ------------------------------------------ */
@@ -101,12 +101,14 @@
 
     /* ---------- stats ------------------------------------------- */
     doc.querySelector('[data-stat-products]').textContent = products.length;
+    var totalLink = doc.querySelector('[data-total-link]');
+    if (totalLink) totalLink.textContent = 'See all ' + products.length + ' products';
     doc.querySelector('[data-stat-brands]').textContent = Object.keys(ZN_BRANDS).length;
 
     /* ---------- recipes ----------------------------------------- */
-    doc.querySelector('[data-recipes]').innerHTML = ZN_RECIPES.slice(0, 3).map(function (r, i) {
+    doc.querySelector('[data-recipes]').innerHTML = ZN_RECIPES.slice(0, 3).map(function (r) {
       return '<a class="recipe" href="recipes.html#' + r.id + '">' +
-        '<div class="recipe__art">' + ZNArt.recipeArt(i, '#174436') + '</div>' +
+        '<div class="recipe__art"><img src="' + esc(r.image) + '" alt="" loading="lazy" width="600" height="400"></div>' +
         '<div class="recipe__body">' +
           '<div class="recipe__date">' + esc(r.date) + ' · ' + r.minutes + ' min</div>' +
           '<h3>' + esc(r.title) + '</h3>' +

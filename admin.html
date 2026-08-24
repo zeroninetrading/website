@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin — Zero Nine Trading</title>
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="referrer" content="no-referrer">
+<link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/admin.css">
+</head>
+<body>
+
+<!-- ===================================================== login gate -->
+<div class="gate" data-gate>
+  <form class="gate__card" data-login>
+    <img class="gate__logo" src="assets/img/logo.svg" alt="Zero Nine Trading">
+    <h1>Product admin</h1>
+    <p class="gate__sub">Sign in to manage products, pricing and stock.</p>
+
+    <div class="field">
+      <label for="pw">Password</label>
+      <input id="pw" type="password" autocomplete="current-password" autofocus>
+    </div>
+    <p class="gate__err" data-login-err role="alert"></p>
+
+    <button class="b b-primary" type="submit" style="width:100%;margin-top:8px">Sign in</button>
+
+    <p class="gate__note">
+      <strong>Demo build.</strong> This gate runs in the browser, so it keeps the
+      panel out of casual view but it is not real security — anyone determined
+      can read the page source. The production version authenticates on the
+      server before any product data is sent.
+    </p>
+  </form>
+</div>
+
+<!-- ===================================================== admin shell -->
+<div class="shell" data-app hidden>
+
+  <nav class="side" aria-label="Admin sections">
+    <div class="side__brand">
+      <img src="assets/img/logo.svg" alt="Zero Nine Trading">
+      <div class="side__tag">Product admin</div>
+    </div>
+
+    <div class="side__group">Manage</div>
+    <button class="navitem" data-view="dashboard" aria-current="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+      Dashboard
+    </button>
+    <button class="navitem" data-view="products">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8l9-5 9 5-9 5-9-5z"/><path d="M3 12l9 5 9-5M3 16l9 5 9-5"/></svg>
+      Products
+    </button>
+    <button class="navitem" data-view="inventory">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7l-8-4-8 4v10l8 4 8-4z"/><path d="M4 7l8 4 8-4M12 11v10"/></svg>
+      Inventory
+      <span class="navitem__badge" data-low-badge hidden>0</span>
+    </button>
+    <button class="navitem" data-view="activity">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+      Activity
+    </button>
+    <button class="navitem" data-view="data">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg>
+      Publish &amp; data
+    </button>
+
+    <div class="side__group">Shop</div>
+    <a class="navitem" href="index.html" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6M10 14L21 3"/></svg>
+      Open the shop
+    </a>
+    <a class="navitem" href="shop.html" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9h18l-2 11H5L3 9z"/><path d="M8 9l3-6M16 9l-3-6"/></svg>
+      Open the catalogue
+    </a>
+
+    <div class="side__group">Session</div>
+    <button class="navitem" data-logout>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg>
+      Sign out
+    </button>
+
+    <div class="side__foot">Zero Nine Trading Ltd<br>Demo admin build</div>
+  </nav>
+
+  <main class="main">
+
+    <div data-notice></div>
+
+    <!-- ---------------------------------------------- dashboard -->
+    <section data-panel="dashboard">
+      <div class="topbar">
+        <div>
+          <h1>Dashboard</h1>
+          <p>Everything currently listed on the shop.</p>
+        </div>
+        <div class="topbar__actions">
+          <button class="b b-lime" data-new>Add a product</button>
+        </div>
+      </div>
+
+      <div class="stats" data-stats></div>
+
+      <div class="panel" style="margin-bottom:20px">
+        <div class="panel__head">
+          <h2>Needs attention</h2>
+          <span class="grow"></span>
+          <button class="b b-ghost b-sm" data-view="inventory">Open inventory</button>
+        </div>
+        <div class="table-wrap" data-attention></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel__head"><h2>Recently changed</h2></div>
+        <div class="panel__body" data-recent></div>
+      </div>
+    </section>
+
+    <!-- ---------------------------------------------- products -->
+    <section data-panel="products" hidden>
+      <div class="topbar">
+        <div>
+          <h1>Products</h1>
+          <p>Edit prices, details and stock. Changes show on the shop straight away.</p>
+        </div>
+        <div class="topbar__actions">
+          <button class="b b-lime" data-new>Add a product</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel__head">
+          <div class="toolbar">
+            <label class="sr-only" for="q">Search products</label>
+            <input class="input input--search" id="q" type="search" placeholder="Search name, brand or code" data-q>
+            <label class="sr-only" for="fcat">Filter by department</label>
+            <select class="select" id="fcat" data-f-cat></select>
+            <label class="sr-only" for="fbrand">Filter by brand</label>
+            <select class="select" id="fbrand" data-f-brand></select>
+            <label class="sr-only" for="fstock">Filter by stock</label>
+            <select class="select" id="fstock" data-f-stock>
+              <option value="">Any stock level</option>
+              <option value="in">In stock</option>
+              <option value="low">Low (10 or fewer)</option>
+              <option value="out">Sold out</option>
+              <option value="sale">On offer</option>
+            </select>
+          </div>
+          <span class="grow"></span>
+          <span class="stat__sub" data-count></span>
+        </div>
+        <div class="table-wrap" data-table></div>
+      </div>
+    </section>
+
+    <!-- ---------------------------------------------- inventory -->
+    <section data-panel="inventory" hidden>
+      <div class="topbar">
+        <div>
+          <h1>Inventory</h1>
+          <p>Stock levels and what they're worth. Adjust straight from the table.</p>
+        </div>
+        <div class="topbar__actions">
+          <button class="b b-ghost" data-restock-all>Restock everything sold out to 12</button>
+        </div>
+      </div>
+
+      <div class="stats" data-inv-stats></div>
+
+      <div class="panel" style="margin-bottom:20px">
+        <div class="panel__head"><h2>Sold out</h2></div>
+        <div class="table-wrap" data-inv-out></div>
+      </div>
+
+      <div class="panel" style="margin-bottom:20px">
+        <div class="panel__head"><h2>Running low <span class="tag tag--low">10 or fewer</span></h2></div>
+        <div class="table-wrap" data-inv-low></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel__head"><h2>Stock value by brand</h2></div>
+        <div class="table-wrap" data-inv-brand></div>
+      </div>
+    </section>
+
+    <!-- ---------------------------------------------- activity -->
+    <section data-panel="activity" hidden>
+      <div class="topbar">
+        <div>
+          <h1>Activity</h1>
+          <p>Every change made in this panel, newest first.</p>
+        </div>
+        <div class="topbar__actions">
+          <button class="b b-danger" data-clear-log>Clear the log</button>
+        </div>
+      </div>
+      <div class="panel"><div class="panel__body" data-log></div></div>
+    </section>
+
+    <!-- ---------------------------------------------- data -->
+    <section data-panel="data" hidden>
+      <div class="topbar">
+        <div>
+          <h1>Publish &amp; data</h1>
+          <p>Get your changes out of the browser and into the repository.</p>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-bottom:20px">
+        <div class="panel__head"><h2>Publish to the live site</h2></div>
+        <div class="panel__body">
+          <p style="margin-top:0;color:var(--a-muted)">
+            Until the admin backend is built, edits live in this browser only —
+            they show on the shop on this machine, but nobody else sees them.
+            To publish for real, download <code>products.js</code> below and
+            replace <code>assets/js/products.js</code> in the repository, then run
+            <code>./setup.sh</code> to commit and push.
+          </p>
+          <div class="toolbar" style="margin-top:14px">
+            <button class="b b-primary" data-export-js>Download products.js</button>
+            <button class="b b-ghost" data-export-json>Download JSON</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-bottom:20px">
+        <div class="panel__head"><h2>Load a catalogue</h2></div>
+        <div class="panel__body">
+          <p style="margin-top:0;color:var(--a-muted)">
+            Import a JSON file in the same shape as the export. This replaces
+            everything currently listed.
+          </p>
+          <div class="toolbar" style="margin-top:14px">
+            <label class="b b-ghost" for="import">Choose a JSON file</label>
+            <input id="import" type="file" accept="application/json,.json" class="sr-only" data-import>
+            <span class="stat__sub" data-import-msg></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel__head"><h2>Start again</h2></div>
+        <div class="panel__body">
+          <p style="margin-top:0;color:var(--a-muted)">
+            Discards every edit made in this browser and goes back to the
+            catalogue shipped in the repository.
+          </p>
+          <button class="b b-danger" style="margin-top:14px" data-reset>Discard my changes</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ===================================================== editor -->
+<div class="scrim" data-scrim></div>
+
+<aside class="drawer" data-drawer aria-hidden="true" aria-label="Product editor">
+  <div class="drawer__head">
+    <h2 data-drawer-title>Edit product</h2>
+    <span style="margin-left:auto"></span>
+    <a class="b b-ghost b-sm" data-view-live target="_blank" rel="noopener" hidden>View on the shop</a>
+    <button class="b b-ghost b-sm" data-close-drawer>Close</button>
+  </div>
+
+  <div class="drawer__body">
+    <div class="preview">
+      <div class="preview__shot" data-preview-shot></div>
+      <div class="preview__meta">
+        <b data-preview-name>New product</b>
+        <span data-preview-sub></span>
+        <div class="preview__price" data-preview-price></div>
+      </div>
+    </div>
+
+    <form class="form-grid" data-form>
+      <div class="field field--full">
+        <label for="f-name">Product name</label>
+        <input id="f-name" name="name" type="text" placeholder="Bio Almond Butter">
+        <span class="err" data-err="name"></span>
+      </div>
+
+      <div class="field">
+        <label for="f-brand">Brand</label>
+        <select id="f-brand" name="brand"></select>
+        <span class="err" data-err="brand"></span>
+      </div>
+
+      <div class="field">
+        <label for="f-category">Department</label>
+        <select id="f-category" name="category"></select>
+        <span class="err" data-err="category"></span>
+      </div>
+
+      <div class="field">
+        <label for="f-price">Price (€)</label>
+        <input id="f-price" name="price" type="number" min="0" step="0.05" placeholder="8.90">
+        <span class="err" data-err="price"></span>
+      </div>
+
+      <div class="field">
+        <label for="f-oldPrice">Was (€)</label>
+        <input id="f-oldPrice" name="oldPrice" type="number" min="0" step="0.05" placeholder="Leave empty if not on offer">
+        <span class="hint">Shows a struck-through price and a "Save %" flag.</span>
+        <span class="err" data-err="oldPrice"></span>
+      </div>
+
+      <div class="field">
+        <label for="f-size">Pack size</label>
+        <input id="f-size" name="size" type="text" placeholder="250 g">
+        <span class="err" data-err="size"></span>
+      </div>
+
+      <div class="field">
+        <label for="f-stock">Stock on hand</label>
+        <input id="f-stock" name="stock" type="number" min="0" step="1" placeholder="0">
+        <span class="hint">0 marks the product sold out.</span>
+        <span class="err" data-err="stock"></span>
+      </div>
+
+      <div class="field">
+        <label for="f-pack">Pack shape</label>
+        <select id="f-pack" name="pack"></select>
+        <span class="hint">Chooses the illustration when there's no photo.</span>
+      </div>
+
+      <div class="field">
+        <label for="f-rating">Rating out of 5</label>
+        <input id="f-rating" name="rating" type="number" min="0" max="5" step="0.1" placeholder="0">
+        <span class="err" data-err="rating"></span>
+      </div>
+
+      <div class="field">
+        <label for="f-reviews">Number of reviews</label>
+        <input id="f-reviews" name="reviews" type="number" min="0" step="1" placeholder="0">
+        <span class="err" data-err="reviews"></span>
+      </div>
+
+      <div class="field field--full">
+        <label>Dietary labels</label>
+        <div class="checks" data-diets></div>
+      </div>
+
+      <div class="field field--full">
+        <label for="f-blurb">Short description</label>
+        <textarea id="f-blurb" name="blurb" placeholder="One line, shown on the card and the product page."></textarea>
+        <span class="err" data-err="blurb"></span>
+      </div>
+
+      <div class="field field--full">
+        <label for="f-image">Photo URL</label>
+        <input id="f-image" name="image" type="url" placeholder="https://… — leave empty to use the illustration">
+        <span class="hint">A photo here replaces the generated packshot for this product only.</span>
+        <span class="err" data-err="image"></span>
+      </div>
+
+      <div class="field field--full">
+        <label for="f-id">Product code</label>
+        <input id="f-id" name="id" type="text" placeholder="generated from the name">
+        <span class="hint">Used in the product URL and the basket. Changing it breaks existing links.</span>
+        <span class="err" data-err="id"></span>
+      </div>
+    </form>
+  </div>
+
+  <div class="drawer__foot">
+    <button class="b b-danger" data-delete hidden>Delete</button>
+    <span class="grow"></span>
+    <button class="b b-ghost" data-close-drawer>Cancel</button>
+    <button class="b b-primary" data-save>Save product</button>
+  </div>
+</aside>
+
+<div class="toast" data-toast role="status" aria-live="polite"></div>
+
+<script src="assets/js/products.js"></script>
+<script src="assets/js/store.js"></script>
+<script src="assets/js/packshot.js"></script>
+<script src="assets/js/admin.js"></script>
+</body>
+</html>

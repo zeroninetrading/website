@@ -156,7 +156,7 @@
           '<form class="searchbar" role="search" action="shop.html" method="get">' +
             '<label class="sr-only" for="zn-search">Search products</label>' +
             I.search +
-            '<input id="zn-search" name="q" type="search" placeholder="Search 70 products — try “gluten free bread”" autocomplete="off">' +
+            '<input id="zn-search" name="q" type="search" placeholder="Search the catalogue — try “gluten free bread”" autocomplete="off">' +
             '<button class="btn btn--primary btn--sm searchbar__go" type="submit">Search</button>' +
           '</form>' +
           '<div class="masthead__tools">' +

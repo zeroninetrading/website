@@ -65,9 +65,33 @@
         <h2>Shop by department</h2>
         <p class="section__lead">Most people arrive with a restriction rather than a shopping list, so the aisles are organised the same way.</p>
       </div>
-      <a class="btn btn--ghost" href="shop.html">See all 70 products</a>
+      <a class="btn btn--ghost" href="shop.html" data-total-link>See the whole catalogue</a>
     </div>
     <div class="grid-cats reveal" data-cats></div>
+  </section>
+
+  <!-- ============================================ promos -->
+  <section class="section--tight wrap section">
+    <div class="promos reveal">
+      <a class="promo promo--dark" href="shop.html?diet=organic">
+        <img class="promo__img" src="assets/img/banner-organic.svg" alt="" loading="lazy" width="1200" height="500">
+        <div class="promo__body">
+          <div class="promo__eyebrow">Certified organic</div>
+          <h3>Every organic claim, checked</h3>
+          <p>EU control body number on every pack we import. No exceptions.</p>
+          <span class="btn btn--lime btn--sm">Shop organic</span>
+        </div>
+      </a>
+      <a class="promo promo--light" href="shop.html?diet=gluten-free">
+        <img class="promo__img" src="assets/img/banner-gluten-free.svg" alt="" loading="lazy" width="1200" height="500">
+        <div class="promo__body">
+          <div class="promo__eyebrow">Under 20 ppm</div>
+          <h3>Bread a coeliac will actually eat</h3>
+          <p>Balviten's dedicated gluten-free bakery, in stock every week.</p>
+          <span class="btn btn--primary btn--sm">Shop gluten free</span>
+        </div>
+      </a>
+    </div>
   </section>
 
   <!-- ============================================ heritage -->
@@ -98,6 +122,15 @@
       </div>
       <a class="btn btn--ghost" href="shop.html?sale=1">All offers</a>
     </div>
+    <a class="promo promo--light reveal" href="shop.html?sale=1" style="margin-bottom:20px">
+      <img class="promo__img" src="assets/img/banner-offers.svg" alt="" loading="lazy" width="1200" height="500">
+      <div class="promo__body">
+        <div class="promo__eyebrow">This month</div>
+        <h3>Reduced and short-dated</h3>
+        <p>Perfectly good stock coming up to its date, at a lower price.</p>
+        <span class="btn btn--primary btn--sm">See all offers</span>
+      </div>
+    </a>
     <div class="grid-products reveal" data-offers></div>
   </section>
 

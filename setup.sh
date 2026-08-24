@@ -57,11 +57,16 @@ step() { echo; echo "${B}$*${N}"; }
 # ---- where each file belongs ------------------------------------------------
 dest_dir_for() {
   case "$1" in
+    # pages and repo files at the root
     index.html|shop.html|product.html|about.html|contact.html|recipes.html|404.html) echo "." ;;
-    README.md|changes-summary.md|setup.sh|.nojekyll)                                  echo "." ;;
-    main.css)                                                                         echo "assets/css" ;;
-    logo.svg|favicon.svg)                                                             echo "assets/img" ;;
-    app.js|content.js|home.js|packshot.js|pages.js|product.js|products.js|shop.js|store.js) echo "assets/js" ;;
+    admin.html)                                                                      echo "." ;;
+    README.md|changes-summary.md|setup.sh|.nojekyll|.gitignore|robots.txt)           echo "." ;;
+    # the image generator lives with the other tooling
+    make-images.js)                                                                  echo "tools" ;;
+    # everything else routes by extension
+    *.css)                                                                           echo "assets/css" ;;
+    *.svg|*.png|*.jpg|*.jpeg|*.webp)                                                 echo "assets/img" ;;
+    *.js)                                                                            echo "assets/js" ;;
     *) echo "" ;;
   esac
 }
@@ -132,12 +137,21 @@ step "Checking the site is complete"
 
 REQUIRED=(
   "index.html" "shop.html" "product.html" "about.html" "contact.html"
-  "recipes.html" "404.html" ".nojekyll"
-  "assets/css/main.css"
+  "recipes.html" "404.html" "admin.html" ".nojekyll"
+  "assets/css/main.css" "assets/css/admin.css"
   "assets/img/logo.svg" "assets/img/favicon.svg"
+  "assets/img/cat-organic.svg" "assets/img/cat-gluten-free.svg"
+  "assets/img/cat-no-sugar.svg" "assets/img/cat-supplements.svg"
+  "assets/img/cat-natural.svg" "assets/img/cat-vegan.svg"
+  "assets/img/recipe-muffins.svg" "assets/img/recipe-smoothie.svg"
+  "assets/img/recipe-toast.svg" "assets/img/recipe-baking.svg"
+  "assets/img/recipe-tahini.svg" "assets/img/recipe-oats.svg"
+  "assets/img/banner-organic.svg" "assets/img/banner-gluten-free.svg"
+  "assets/img/banner-offers.svg" "assets/img/about-warehouse.svg"
   "assets/js/products.js" "assets/js/content.js" "assets/js/store.js"
   "assets/js/packshot.js" "assets/js/app.js" "assets/js/home.js"
   "assets/js/shop.js" "assets/js/product.js" "assets/js/pages.js"
+  "assets/js/admin.js"
 )
 
 missing=()
@@ -154,21 +168,24 @@ if [ "${#missing[@]}" -gt 0 ]; then
 fi
 ok "all ${#REQUIRED[@]} required files present"
 
-# Every script tag in index.html should resolve on disk.
+# Every asset referenced by a page should resolve on disk.
 broken=0
-while IFS= read -r ref; do
-  if [ ! -f "$DEST/$ref" ]; then
-    err "index.html references $ref, which isn't on disk"
-    broken=1
-  fi
-done < <(grep -oE '(src|href)="(assets/[^"]+)"' "$DEST/index.html" | sed -E 's/.*"(assets[^"]+)"/\1/' | sort -u)
-[ "$broken" -eq 0 ] && ok "index.html asset references all resolve"
+for page in index.html shop.html product.html about.html contact.html recipes.html 404.html admin.html; do
+  while IFS= read -r ref; do
+    if [ ! -f "$DEST/$ref" ]; then
+      err "$page references $ref, which isn't on disk"
+      broken=1
+    fi
+  done < <(grep -oE '(src|href)="(assets/[^"]+)"' "$DEST/$page" | sed -E 's/.*"(assets[^"]+)"/\1/' | sort -u)
+done
+[ "$broken" -eq 0 ] && ok "asset references on all 8 pages resolve"
 [ "$broken" -eq 1 ] && exit 1
 
 # Optional: syntax-check the JS if node is around.
 if command -v node >/dev/null 2>&1; then
   jsfail=0
-  for f in "$DEST"/assets/js/*.js; do
+  for f in "$DEST"/assets/js/*.js "$DEST"/tools/*.js; do
+    [ -f "$f" ] || continue
     node --check "$f" >/dev/null 2>&1 || { err "syntax error in $(basename "$f")"; jsfail=1; }
   done
   [ "$jsfail" -eq 0 ] && ok "all JavaScript parses cleanly"
