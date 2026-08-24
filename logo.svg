@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 92" width="300" height="92" role="img" aria-label="Zero Nine Trading">
+  <g>
+    <circle cx="40" cy="46" r="32" fill="#174436"/>
+    <path d="M56 30c0 18-9.5 28.5-24 30 0-18 9.5-28.5 24-30z" fill="#B9DC55"/>
+    <path d="M56 30C44 36 36.5 45 32 58" stroke="#E9F3CF" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+  </g>
+  <text x="88" y="43" font-family="Trebuchet MS, Segoe UI, sans-serif" font-size="27" font-weight="700" letter-spacing="1" fill="#174436">ZERO NINE</text>
+  <text x="89" y="62" font-family="ui-monospace, Menlo, monospace" font-size="11" letter-spacing="3.4" fill="#5E6F64">TRADING LTD</text>
+  <text x="89" y="78" font-family="ui-monospace, Menlo, monospace" font-size="9.5" letter-spacing="2.2" fill="#8AA08F">ORGANIC · BIO · CYPRUS</text>
+</svg>
