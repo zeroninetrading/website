@@ -159,13 +159,19 @@ progress bar is hidden and the hero product stops turning on its own.
 
 ### The hero deck
 
-`assets/js/home.js`. Four featured products, one per screen, swipeable.
+`assets/js/home.js`. Four featured products, one per screen.
 
-It uses native CSS scroll snapping rather than a JavaScript carousel, so the
+It uses native CSS scroll snapping rather than a JavaScript carousel, so a touch
 swipe has real momentum and the browser handles the physics. Story-style
 segments above fill as each card takes its turn, and tapping one jumps to it.
-Auto-advance stops the moment you touch it and resumes a few seconds later, and
+Auto-advance stops the moment you interact and resumes a few seconds later, and
 the timer doesn't run at all while the deck is off screen.
+
+A desktop has no swipe gesture, so pointer devices get three ways in: **arrow
+buttons** beside the segments, **grab-and-drag** with the mouse, and the
+**wheel** (a vertical wheel delta moves one slide; a trackpad's horizontal
+scroll already works natively). A drag is prevented from turning into a click,
+so releasing over a card doesn't open it.
 
 ### Touch feedback
 
@@ -198,6 +204,14 @@ breaks the sticky header. There's an `@supports` fallback for older engines.
 **Product card footers.** At two columns on a phone there isn't room for a price
 and an Add button side by side, and the button gets pushed outside the card. The
 footer stacks below 640px and the button goes full width.
+
+**Never write `grid-template-columns: 1fr`.** Use `minmax(0, 1fr)`. A bare `1fr`
+means `minmax(auto, 1fr)`, so the track can never be narrower than its content's
+min-content — and a horizontally-scrolling child like the hero carousel reports
+a min-content of *all* its slides laid end to end. That pushed the hero column
+several screens wide, and everything sharing it (the headline, the lead, the
+diet finder) got cut off on the right. There's a test that fails if a bare `1fr`
+reappears anywhere in the stylesheets.
 
 Also worth keeping: the search input is `16px` on small screens, because
 anything smaller makes iOS zoom the page when you focus it.

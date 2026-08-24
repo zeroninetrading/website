@@ -113,7 +113,7 @@
 
         // Stack the art above the text on narrow screens.
         var style = doc.createElement('style');
-        style.textContent = '@media (max-width:720px){.recipe-row{grid-template-columns:1fr !important}' +
+        style.textContent = '@media (max-width:720px){.recipe-row{grid-template-columns:minmax(0,1fr) !important}' +
           '.recipe-row .recipe__art{min-height:150px !important}}';
         doc.head.appendChild(style);
 

@@ -128,19 +128,86 @@
       track.addEventListener('scroll', function () {
         clearTimeout(settle);
         settle = setTimeout(function () {
-          var mid = track.scrollLeft + track.clientWidth / 2;
-          var nearest = 0, best = Infinity;
-          Array.prototype.forEach.call(track.children, function (el, i) {
-            var c = el.offsetLeft - track.offsetLeft + el.offsetWidth / 2;
-            var d = Math.abs(c - mid);
-            if (d < best) { best = d; nearest = i; }
-          });
+          if (drag) return;                       // mid-drag, wait for the release
+          var nearest = nearestIndex();
           if (nearest !== index) { index = nearest; paintBars(); }
         }, 90);
       }, { passive: true });
 
+      var prev = doc.querySelector('[data-deck-prev]');
+      var next = doc.querySelector('[data-deck-next]');
+      if (prev) prev.addEventListener('click', function () { goTo(index - 1); pause(DWELL * 1.5); });
+      if (next) next.addEventListener('click', function () { goTo(index + 1); pause(DWELL * 1.5); });
+
       track.addEventListener('touchstart', function () { pause(DWELL * 1.5); }, { passive: true });
-      track.addEventListener('mousedown', function () { pause(DWELL * 1.5); });
+
+      /* ---- drag to swipe with a mouse ----------------------------
+         A touch device scrolls this natively. On a desktop there's no
+         gesture at all unless you have a trackpad, so grab-and-drag is
+         wired up by hand, and a drag is stopped from becoming a click. */
+      var drag = null;
+
+      function nearestIndex() {
+        var mid = track.scrollLeft + track.clientWidth / 2;
+        var nearest = 0, best = Infinity;
+        Array.prototype.forEach.call(track.children, function (el, i) {
+          var c = el.offsetLeft - track.offsetLeft + el.offsetWidth / 2;
+          var d = Math.abs(c - mid);
+          if (d < best) { best = d; nearest = i; }
+        });
+        return nearest;
+      }
+
+      track.addEventListener('pointerdown', function (e) {
+        if (e.pointerType === 'touch' || e.button !== 0) return;
+        drag = { x: e.clientX, left: track.scrollLeft, moved: 0 };
+        track.classList.add('is-dragging');
+        pause(DWELL * 1.5);
+        if (track.setPointerCapture) {
+          try { track.setPointerCapture(e.pointerId); } catch (err) { /* not supported */ }
+        }
+      });
+
+      track.addEventListener('pointermove', function (e) {
+        if (!drag) return;
+        var dx = e.clientX - drag.x;
+        drag.moved = Math.max(drag.moved, Math.abs(dx));
+        track.scrollLeft = drag.left - dx;
+      });
+
+      function endDrag() {
+        if (!drag) return;
+        var moved = drag.moved;
+        drag = null;
+        track.classList.remove('is-dragging');
+        goTo(nearestIndex());
+        // Swallow the click that follows a real drag, so letting go over a
+        // card doesn't open it.
+        if (moved > 6) {
+          track.addEventListener('click', function once(ev) {
+            ev.preventDefault();
+            ev.stopPropagation();
+            track.removeEventListener('click', once, true);
+          }, true);
+          setTimeout(function () { /* nothing left to clean up */ }, 0);
+        }
+      }
+
+      track.addEventListener('pointerup', endDrag);
+      track.addEventListener('pointercancel', endDrag);
+      track.addEventListener('pointerleave', endDrag);
+
+      /* A trackpad's horizontal scroll already works; a wheel-only mouse
+         gets vertical deltas, so translate those into slide changes. */
+      var wheelLock = false;
+      track.addEventListener('wheel', function (e) {
+        if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;   // real horizontal scroll
+        if (wheelLock) return;
+        wheelLock = true;
+        setTimeout(function () { wheelLock = false; }, 320);
+        goTo(index + (e.deltaY > 0 ? 1 : -1));
+        pause(DWELL * 1.5);
+      }, { passive: true });
 
       track.addEventListener('keydown', function (e) {
         if (e.key === 'ArrowRight') { goTo(index + 1); pause(DWELL * 1.5); }

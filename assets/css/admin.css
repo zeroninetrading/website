@@ -287,7 +287,7 @@ td.num, th.num { text-align: right; font-family: var(--a-mono); font-size: .88re
 }
 .drawer__foot .grow { margin-left: auto; }
 
-.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; }
 .field { display: flex; flex-direction: column; gap: 5px; }
 .field--full { grid-column: 1 / -1; }
 .field label { font-size: .8rem; font-weight: 600; }
@@ -359,7 +359,7 @@ td.num, th.num { text-align: right; font-family: var(--a-mono); font-size: .88re
    Responsive
    ================================================================== */
 @media (max-width: 900px) {
-  .shell { grid-template-columns: 1fr; }
+  .shell { grid-template-columns: minmax(0, 1fr); }
   .side {
     position: static; height: auto; flex-direction: row; flex-wrap: wrap;
     align-items: center; padding: 12px;
@@ -368,7 +368,7 @@ td.num, th.num { text-align: right; font-family: var(--a-mono); font-size: .88re
   .side__tag, .side__group, .side__foot { display: none; }
   .navitem { width: auto; }
   .main { padding: 20px 16px 50px; }
-  .form-grid { grid-template-columns: 1fr; }
+  .form-grid { grid-template-columns: minmax(0, 1fr); }
 }
 
 @media (prefers-reduced-motion: reduce) {
