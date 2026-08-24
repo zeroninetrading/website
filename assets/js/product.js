@@ -172,6 +172,31 @@
       doc.querySelector('[data-related-section]').hidden = false;
     }
 
+    /* ---------- sticky buy bar (phones) -------------------------- */
+    if (p.stock > 0) {
+      var bar = doc.createElement('div');
+      bar.className = 'buybar';
+      bar.setAttribute('data-show', 'false');
+      bar.innerHTML =
+        '<div style="min-width:0">' +
+          '<div class="buybar__price">' + ZN.money(p.price) + '</div>' +
+          '<div class="buybar__name">' + esc(p.name) + '</div>' +
+        '</div>' +
+        '<button class="btn btn--lime" data-add="' + esc(p.id) + '">Add to basket</button>';
+      doc.body.appendChild(bar);
+      doc.body.classList.add('has-buybar');
+
+      var mainBuy = host.querySelector('[data-pdp-add]');
+      if ('IntersectionObserver' in window && mainBuy) {
+        new IntersectionObserver(function (entries) {
+          entries.forEach(function (en) {
+            // Only once the real button has scrolled out of sight.
+            bar.setAttribute('data-show', en.isIntersecting ? 'false' : 'true');
+          });
+        }, { threshold: 0 }).observe(mainBuy);
+      }
+    }
+
     /* ---------- structured data --------------------------------- */
     var ld = doc.createElement('script');
     ld.type = 'application/ld+json';

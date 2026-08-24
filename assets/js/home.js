@@ -12,105 +12,152 @@
   ZN.load().then(function (products) {
     var live = products.filter(function (p) { return p.stock > 0; });
 
-    /* ---------- hero showcase (the rotating product) ------------ */
-    // Only shapes that are surfaces of revolution can be spun convincingly.
-    var spinnable = live.filter(function (p) {
-      return ZNBottle.shapes.indexOf(p.pack) > -1;
-    }).sort(function (a, b) {
-      return (b.reviews * b.rating) - (a.reviews * a.rating);
-    });
-
+    /* ---------- hero deck (swipeable featured products) ---------- */
     var featured = [];
     var seenBrands = {};
-    spinnable.forEach(function (p) {                 // one per brand, for variety
+    live.slice().sort(function (a, b) {
+      return (b.reviews * b.rating) - (a.reviews * a.rating);
+    }).forEach(function (p) {                       // one per brand, for variety
       if (featured.length >= 4 || seenBrands[p.brand]) return;
       seenBrands[p.brand] = true;
       featured.push(p);
     });
-    while (featured.length < 4 && spinnable.length > featured.length) {
-      featured.push(spinnable[featured.length]);
-    }
 
-    var canvas = doc.querySelector('[data-bottle]');
-    var bottle = null;
-    var current = 0;
-    var cycleTimer = null;
+    var track = doc.querySelector('[data-deck-track]');
+    var bars = doc.querySelector('[data-deck-bars]');
+    var DWELL = 6000;
 
-    function showFeatured(i, immediate) {
-      current = (i + featured.length) % featured.length;
-      var p = featured[current];
-      var info = doc.querySelector('[data-showcase-info]');
-
-      function apply() {
-        if (!bottle) {
-          // No canvas: show the illustration instead, still cycling products.
-          var stage = doc.querySelector('.showcase__stage');
-          if (stage) {
-            stage.innerHTML = '<div class="showcase__glow" aria-hidden="true"></div>' +
-              '<div class="showcase__fallback">' + ZNArt.packshot(p) + '</div>';
-          }
-          paintInfo();
-          return;
-        }
-        bottle.setProduct({
-          brand: p.brand,
-          name: p.name,
-          size: p.size,
-          pack: p.pack,
-          color: ZNArt.ink(ZNUI.brandColor(p.brand))
-        });
-        paintInfo();
-      }
-
-      function paintInfo() {
-        doc.querySelector('[data-showcase-brand]').textContent = p.brand;
-        doc.querySelector('[data-showcase-name]').textContent = p.name;
-        doc.querySelector('[data-showcase-price]').textContent = ZN.money(p.price) + ' · ' + p.size;
-        doc.querySelector('[data-showcase-link]').href = 'product.html?id=' + encodeURIComponent(p.id);
-        info.classList.remove('is-swapping');
-
-        Array.prototype.forEach.call(doc.querySelectorAll('[data-showcase-dots] button'), function (b, n) {
-          b.setAttribute('aria-current', n === current ? 'true' : 'false');
-        });
-      }
-
-      if (immediate || ZNMotion.reduced) { apply(); return; }
-      info.classList.add('is-swapping');
-      setTimeout(apply, 300);
-    }
-
-    function startCycle() {
-      clearInterval(cycleTimer);
-      cycleTimer = setInterval(function () { showFeatured(current + 1); }, 7000);
-    }
-
-    if (canvas && featured.length) {
-      bottle = ZNBottle.create(canvas);
-      if (!bottle) {
-        canvas.remove();
-        doc.querySelector('.showcase__hint').hidden = true;
-      }
-
-      doc.querySelector('[data-showcase-dots]').innerHTML = featured.map(function (p, i) {
-        return '<button type="button" role="tab" aria-current="' + (i === 0) + '" ' +
-          'data-dot="' + i + '" aria-label="Show ' + ZNUI.esc(p.name) + '"></button>';
+    if (track && featured.length) {
+      track.innerHTML = featured.map(function (p, i) {
+        var save = p.oldPrice ? Math.round((1 - p.price / p.oldPrice) * 100) : 0;
+        return '<article class="deck__slide' + (i === 0 ? ' is-current' : '') + '" ' +
+            'data-slide="' + i + '" aria-roledescription="slide" ' +
+            'aria-label="' + esc(p.name) + ', ' + (i + 1) + ' of ' + featured.length + '">' +
+          '<div class="deck__media">' + ZNArt.packshot(p) + '</div>' +
+          '<div>' +
+            '<div class="deck__brand" style="color:' + esc(ZNUI.brandInk(p.brand)) + '">' +
+              esc(p.brand) + '</div>' +
+            '<div class="deck__name">' + esc(p.name) + '</div>' +
+            '<div class="deck__meta">' + esc(p.size) +
+              (save ? ' · <span class="flag flag--save">Save ' + save + '%</span>' : '') +
+            '</div>' +
+          '</div>' +
+          '<div class="deck__row">' +
+            '<span class="deck__price">' +
+              (p.oldPrice ? '<small>' + ZN.money(p.oldPrice) + '</small>' : '') +
+              ZN.money(p.price) + '</span>' +
+            '<span style="display:flex;gap:8px">' +
+              '<a class="btn btn--ghost btn--sm" href="product.html?id=' +
+                encodeURIComponent(p.id) + '">Details</a>' +
+              '<button class="btn btn--lime btn--sm" data-add="' + esc(p.id) + '">Add</button>' +
+            '</span>' +
+          '</div>' +
+        '</article>';
       }).join('');
 
-      doc.querySelector('[data-showcase-dots]').addEventListener('click', function (e) {
-        var b = e.target.closest('[data-dot]');
+      bars.innerHTML = featured.map(function (p, i) {
+        return '<button type="button" class="deck__bar" role="tab" data-bar="' + i + '" ' +
+          'data-state="' + (i === 0 ? 'active' : 'idle') + '" ' +
+          'aria-label="Show ' + esc(p.name) + '"><span></span></button>';
+      }).join('');
+      bars.style.setProperty('--dwell', DWELL + 'ms');
+
+      var index = 0;
+      var timer = null;
+      var idle = null;
+
+      function paintBars() {
+        Array.prototype.forEach.call(bars.children, function (b, i) {
+          // Restart the fill animation by replacing the node.
+          var state = i < index ? 'done' : i === index ? 'active' : 'idle';
+          if (b.getAttribute('data-state') !== state || state === 'active') {
+            b.innerHTML = '<span></span>';
+            b.setAttribute('data-state', state);
+          }
+        });
+        Array.prototype.forEach.call(track.children, function (el, i) {
+          el.classList.toggle('is-current', i === index);
+        });
+      }
+
+      function goTo(i, smooth) {
+        index = (i + featured.length) % featured.length;
+        var slide = track.children[index];
+        var left = slide.offsetLeft - track.offsetLeft;
+
+        // scrollTo rather than scrollIntoView, so the page itself doesn't jump.
+        // Older Safari has no options object on element scrolling, so fall
+        // back to scrollLeft — the CSS scroll-behaviour still smooths it.
+        try {
+          if (typeof track.scrollTo === 'function') {
+            track.scrollTo({
+              left: left,
+              behavior: smooth === false || ZNMotion.reduced ? 'auto' : 'smooth'
+            });
+          } else {
+            track.scrollLeft = left;
+          }
+        } catch (e) {
+          track.scrollLeft = left;
+        }
+
+        paintBars();
+      }
+
+      function play() {
+        if (ZNMotion.reduced) return;
+        clearInterval(timer);
+        timer = setInterval(function () { goTo(index + 1); }, DWELL);
+      }
+
+      function pause(resumeAfter) {
+        clearInterval(timer);
+        clearTimeout(idle);
+        if (resumeAfter) idle = setTimeout(play, resumeAfter);
+      }
+
+      bars.addEventListener('click', function (e) {
+        var b = e.target.closest('[data-bar]');
         if (!b) return;
-        showFeatured(parseInt(b.getAttribute('data-dot'), 10));
-        startCycle();
+        goTo(parseInt(b.getAttribute('data-bar'), 10));
+        pause(DWELL * 1.5);
       });
 
-      // Stop cycling while someone is turning it by hand.
-      canvas.addEventListener('mousedown', function () { clearInterval(cycleTimer); });
-      canvas.addEventListener('touchstart', function () { clearInterval(cycleTimer); }, { passive: true });
-      canvas.addEventListener('mouseup', startCycle);
-      canvas.addEventListener('touchend', startCycle);
+      // Follow a swipe: whichever slide settles nearest the centre wins.
+      var settle;
+      track.addEventListener('scroll', function () {
+        clearTimeout(settle);
+        settle = setTimeout(function () {
+          var mid = track.scrollLeft + track.clientWidth / 2;
+          var nearest = 0, best = Infinity;
+          Array.prototype.forEach.call(track.children, function (el, i) {
+            var c = el.offsetLeft - track.offsetLeft + el.offsetWidth / 2;
+            var d = Math.abs(c - mid);
+            if (d < best) { best = d; nearest = i; }
+          });
+          if (nearest !== index) { index = nearest; paintBars(); }
+        }, 90);
+      }, { passive: true });
 
-      showFeatured(0, true);
-      startCycle();
+      track.addEventListener('touchstart', function () { pause(DWELL * 1.5); }, { passive: true });
+      track.addEventListener('mousedown', function () { pause(DWELL * 1.5); });
+
+      track.addEventListener('keydown', function (e) {
+        if (e.key === 'ArrowRight') { goTo(index + 1); pause(DWELL * 1.5); }
+        if (e.key === 'ArrowLeft') { goTo(index - 1); pause(DWELL * 1.5); }
+      });
+
+      // Don't run the timer while the deck is off screen.
+      if ('IntersectionObserver' in window) {
+        new IntersectionObserver(function (entries) {
+          entries.forEach(function (en) { en.isIntersecting ? play() : pause(); });
+        }, { threshold: 0.25 }).observe(track);
+      } else {
+        play();
+      }
+
+      if (ZNMotion.reduced) doc.querySelector('[data-deck-hint]').hidden = true;
+      paintBars();
     }
 
     /* ---------- diet finder (the signature) --------------------- */

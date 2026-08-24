@@ -39,20 +39,12 @@
         </div>
       </div>
 
-      <div class="showcase" data-showcase>
-        <div class="showcase__stage">
-          <div class="showcase__glow float-slower" aria-hidden="true"></div>
-          <canvas class="showcase__canvas" data-bottle tabindex="0"
-                  role="img" aria-label="A rotating view of a featured product. Drag, or use the arrow keys, to turn it."></canvas>
-        </div>
-        <div class="showcase__info" data-showcase-info>
-          <div class="showcase__brand" data-showcase-brand></div>
-          <div class="showcase__name" data-showcase-name></div>
-          <div class="showcase__price" data-showcase-price></div>
-          <a class="btn btn--lime btn--sm" data-showcase-link href="shop.html">View product</a>
-        </div>
-        <div class="showcase__dots" data-showcase-dots role="tablist" aria-label="Featured products"></div>
-        <p class="showcase__hint">Drag to spin</p>
+      <!-- Swipeable featured deck: one card at a time, snap scrolling,
+           story-style segments that fill as each auto-advances. -->
+      <div class="deck" data-deck>
+        <div class="deck__bars" data-deck-bars role="tablist" aria-label="Featured products"></div>
+        <div class="deck__track" data-deck-track tabindex="0" aria-label="Featured products, swipe to browse"></div>
+        <p class="deck__hint" data-deck-hint>Swipe</p>
       </div>
     </div>
   </section>
@@ -201,7 +193,6 @@
 <script src="assets/js/store.js"></script>
 <script src="assets/js/packshot.js"></script>
 <script src="assets/js/motion.js"></script>
-<script src="assets/js/bottle3d.js"></script>
 <script src="assets/js/app.js"></script>
 <script src="assets/js/home.js"></script>
 </body>

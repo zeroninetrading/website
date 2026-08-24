@@ -63,7 +63,6 @@ assets/js/
   product.js        Product detail page
   pages.js          About, contact, recipes, 404
   motion.js         Scroll reveals, parallax, count-ups, progress bar
-  bottle3d.js       The rotating product in the hero
   admin.js          Admin panel — never loaded by a public page
 ```
 
@@ -158,40 +157,54 @@ once it has appeared. **Everything checks `prefers-reduced-motion` first**: with
 that set, elements are simply shown in place, the marquee stops looping, the
 progress bar is hidden and the hero product stops turning on its own.
 
-### The rotating product
+### The hero deck
 
-`assets/js/bottle3d.js`, on the homepage. No WebGL, no 3D library, nothing to
-load.
+`assets/js/home.js`. Four featured products, one per screen, swipeable.
 
-A bottle is a surface of revolution, so its outline is identical from every
-angle — the only things that actually change as it turns are the label and the
-highlight. So the silhouette is drawn once and the label is mapped around it as
-a cylinder: each column of a flat label texture is placed at `x = R·sin θ` and
-squeezed by `cos θ`.
+It uses native CSS scroll snapping rather than a JavaScript carousel, so the
+swipe has real momentum and the browser handles the physics. Story-style
+segments above fill as each card takes its turn, and tapping one jumps to it.
+Auto-advance stops the moment you touch it and resumes a few seconds later, and
+the timer doesn't run at all while the deck is off screen.
 
-The part that sells it is the vertical offset. The view is tilted slightly
-downward, so a horizontal circle on the cylinder projects to an ellipse and a
-point at angle θ sits `Ez·cos θ` lower on screen — near side low, far side high.
-Applying that per column bows the label, which is what stops it reading as a
-flat sticker wrapped round a cartoon. The cap's knurling is placed on the same
-angle, so it travels round as the bottle turns.
+### Touch feedback
 
-On top of that: a specular streak and a rim light off the back edge, occlusion
-into both sides, a curved base rim, a soft contact shadow, and a flipped
-reflection below.
+Phones expect a control to acknowledge the tap itself, not just the result:
 
-Three shapes are supported — `bottle`, `jar`, `tin` — each with its own profile,
-height and girth, because one set of proportions makes a tin look stretched.
-The profiles are functions returning radius against height, so adding a shape
-means adding one function and one layout entry.
+- Every button, icon button, pill and chip ripples from the point you touched.
+- Add-to-basket confirms in place — the button turns green and reads "Added" for
+  a moment — and the cart badge pops.
+- The hamburger reports its state and rotates to a cross.
+- A back-to-top button appears once you're well down the page, and only while
+  you're scrolling *up*, so it never covers what you're reading.
+- Product pages get a sticky buy bar on phones, which slides in once the real
+  add button has scrolled out of sight.
 
-Drag it or use the arrow keys. It only animates while it's on screen, gradients
-are cached between frames, and only the box the bottle occupies is composited
-rather than the whole canvas. Under `prefers-reduced-motion` it stops turning on
-its own but can still be dragged. If canvas isn't available, `create()` returns
-null and the hero falls back to the flat illustration.
+All of it is off under `prefers-reduced-motion`.
 
 ---
+
+## Mobile
+
+Two things worth knowing, because both were bugs and both are easy to
+reintroduce:
+
+**Horizontal overflow.** The cart drawer is `position: fixed` past the right
+edge. On iOS that produces a horizontal scroll, and the page loads shifted with
+a white strip down the side. `html { overflow-x: clip }` fixes it. It has to be
+`clip`, not `hidden` — `hidden` turns `<html>` into a scroll container and
+breaks the sticky header. There's an `@supports` fallback for older engines.
+
+**Product card footers.** At two columns on a phone there isn't room for a price
+and an Add button side by side, and the button gets pushed outside the card. The
+footer stacks below 640px and the button goes full width.
+
+Also worth keeping: the search input is `16px` on small screens, because
+anything smaller makes iOS zoom the page when you focus it.
+
+---
+
+## The admin panel---
 
 ## The admin panel
 

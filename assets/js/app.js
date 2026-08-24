@@ -151,17 +151,22 @@
 
       '<div class="masthead">' +
         '<div class="wrap masthead__main">' +
-          '<button class="btn-icon nav-toggle" data-open-nav aria-label="Open menu">' + I.menu + '</button>' +
+          '<button class="btn-icon nav-toggle" data-open-nav aria-expanded="false" aria-label="Open menu">' + I.menu + '</button>' +
           '<a class="brandmark" href="index.html">' + LOGO_TAG + '</a>' +
           '<form class="searchbar" role="search" action="shop.html" method="get">' +
             '<label class="sr-only" for="zn-search">Search products</label>' +
             I.search +
-            '<input id="zn-search" name="q" type="search" placeholder="Search the catalogue — try “gluten free bread”" autocomplete="off">' +
+            '<input id="zn-search" name="q" type="search" placeholder="Search products" autocomplete="off">' +
             '<button class="btn btn--primary btn--sm searchbar__go" type="submit">Search</button>' +
           '</form>' +
           '<div class="masthead__tools">' +
-            '<button class="btn-icon" data-open-cart aria-label="Open basket">' + I.cart +
-              '<span class="count-bubble" data-cart-count data-empty="true">0</span></button>' +
+            /* The badge sits outside the button: icon buttons clip their
+               overflow so the tap ripple stays inside the circle, which
+               would otherwise cut the corner off the count. */
+            '<span class="cart-btn">' +
+              '<button class="btn-icon" data-open-cart aria-label="Open basket">' + I.cart + '</button>' +
+              '<span class="count-bubble" data-cart-count data-empty="true" aria-hidden="true">0</span>' +
+            '</span>' +
           '</div>' +
         '</div>' +
         '<nav class="mainnav" aria-label="Main"><div class="wrap"><ul class="mainnav__list">' +
@@ -312,6 +317,8 @@
     doc.body.style.overflow = 'hidden';
   }
   function closeDrawers() {
+    var toggle = doc.querySelector('.nav-toggle');
+    if (toggle) toggle.setAttribute('aria-expanded', 'false');
     ['[data-cart]', '[data-mobilenav]', '[data-filters]'].forEach(function (sel) {
       var el = doc.querySelector(sel);
       if (el) { el.setAttribute('data-open', 'false'); el.setAttribute('aria-hidden', 'true'); }
@@ -319,6 +326,74 @@
     var scrim = doc.querySelector('[data-scrim]');
     if (scrim) scrim.setAttribute('data-open', 'false');
     doc.body.style.overflow = '';
+  }
+
+  /* ---------- touch feedback -------------------------------------
+     Phones expect a control to acknowledge the tap itself, not just the
+     result. A ripple from the touch point plus a short confirmed state
+     on the button covers most of it.
+  ---------------------------------------------------------------- */
+  function ripple(el, e) {
+    if (global.ZNMotion && global.ZNMotion.reduced) return;
+    var rect = el.getBoundingClientRect();
+    var size = Math.max(rect.width, rect.height);
+    var point = e.touches && e.touches[0] ? e.touches[0] : e;
+    var x = (point.clientX || rect.left + rect.width / 2) - rect.left;
+    var y = (point.clientY || rect.top + rect.height / 2) - rect.top;
+
+    var dot = doc.createElement('span');
+    dot.className = 'ripple';
+    dot.style.width = dot.style.height = size + 'px';
+    dot.style.left = (x - size / 2) + 'px';
+    dot.style.top = (y - size / 2) + 'px';
+    el.appendChild(dot);
+    setTimeout(function () { if (dot.parentNode) dot.parentNode.removeChild(dot); }, 540);
+  }
+
+  function confirmAdd(btn) {
+    if (!btn || btn.hasAttribute('data-busy')) return;
+    var label = btn.textContent;
+    btn.setAttribute('data-busy', '1');
+    btn.classList.add('is-added');
+    btn.textContent = 'Added';
+    setTimeout(function () {
+      btn.classList.remove('is-added');
+      btn.textContent = label;
+      btn.removeAttribute('data-busy');
+    }, 1400);
+  }
+
+  function bumpCart() {
+    Array.prototype.forEach.call(doc.querySelectorAll('[data-cart-count]'), function (el) {
+      el.classList.remove('is-bumped');
+      void el.offsetWidth;              // restart the animation
+      el.classList.add('is-bumped');
+    });
+  }
+
+  /* ---------- back to top ----------------------------------------- */
+  function mountToTop() {
+    var btn = doc.createElement('button');
+    btn.className = 'to-top';
+    btn.setAttribute('data-show', 'false');
+    btn.setAttribute('aria-label', 'Back to top');
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+      '<path d="M12 19V5M5 12l7-7 7 7"/></svg>';
+    doc.body.appendChild(btn);
+
+    btn.addEventListener('click', function () {
+      global.scrollTo({ top: 0, behavior: (global.ZNMotion && global.ZNMotion.reduced) ? 'auto' : 'smooth' });
+    });
+
+    var last = 0;
+    global.addEventListener('scroll', function () {
+      var y = global.pageYOffset || doc.documentElement.scrollTop;
+      // Show once you're well down the page, and hide again while scrolling down
+      // so it never covers what you're reading.
+      btn.setAttribute('data-show', (y > global.innerHeight * 1.2 && y < last) ? 'true' : 'false');
+      last = y;
+    }, { passive: true });
   }
 
   /* ---------- toast ---------------------------------------------- */
@@ -390,10 +465,13 @@
         var id = t.getAttribute('data-add');
         var p = global.ZN.byId(id);
         global.ZN.cart.add(id, 1);
+        confirmAdd(t);
+        bumpCart();
         toast((p ? p.name : 'Item') + ' added to the basket');
       } else if (t.hasAttribute('data-open-cart')) {
         openDrawer(doc.querySelector('[data-cart]'));
       } else if (t.hasAttribute('data-open-nav')) {
+        t.setAttribute('aria-expanded', 'true');
         openDrawer(doc.querySelector('[data-mobilenav]'));
       } else if (t.hasAttribute('data-open-filters')) {
         openDrawer(doc.querySelector('[data-filters]'));
@@ -422,16 +500,23 @@
       }
     });
 
+    doc.addEventListener('pointerdown', function (e) {
+      var el = e.target.closest('.btn, .btn-icon, .pill, .chip');
+      if (el && !el.disabled) ripple(el, e);
+    }, { passive: true });
+
     doc.addEventListener('keydown', function (e) {
       if (e.key === 'Escape') closeDrawers();
     });
+
+    mountToTop();
 
     reveal();
   }
 
   global.ZNUI = {
     mount: mount, card: card, icons: I, esc: esc, param: param,
-    toast: toast, reveal: reveal, stars: stars,
+    toast: toast, reveal: reveal, stars: stars, bumpCart: bumpCart,
     dietName: dietName, dietShort: dietShort,
     categoryName: categoryName, brandColor: brandColor, brandInk: brandInk,
     closeDrawers: closeDrawers
